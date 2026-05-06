@@ -1,0 +1,50 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: predictor-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: predictor
+    restart: unless-stopped
+    networks:
+      - predictor-network
+
+  backend:
+    build: ./backend
+    container_name: predictor-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/predictor
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - predictor-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: predictor-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - predictor-network
+
+volumes:
+  mongo_data:
+
+networks:
+  predictor-network:
+    driver: bridge
