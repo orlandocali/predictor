@@ -25,6 +25,8 @@ public class User {
     @Indexed(unique = true)
     private String username;
 
+    private String displayName;
+
     private String password;
 
     private Role role;
