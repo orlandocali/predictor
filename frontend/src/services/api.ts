@@ -101,4 +101,18 @@ export async function apiPost<TBody, TResponse>(
   return response.data.data;
 }
 
+export async function apiPatch<TBody, TResponse>(
+  url: string,
+  body: TBody
+): Promise<TResponse> {
+  const response = await api.patch<ApiResponse<TResponse>>(url, body);
+  if (response.data.error) {
+    throw new Error(response.data.error);
+  }
+  if (response.data.data == null) {
+    throw new Error('Received null data from server');
+  }
+  return response.data.data;
+}
+
 export default api;

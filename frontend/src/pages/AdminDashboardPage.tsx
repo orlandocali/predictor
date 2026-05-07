@@ -1,6 +1,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboardPage() {
   return (
@@ -33,8 +35,10 @@ export default function AdminDashboardPage() {
             <CardTitle className="text-xl">Match Configuration</CardTitle>
             <CardDescription>Setup and update match outcomes.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-32 text-muted-foreground italic">
-            Content coming soon
+          <CardContent className="flex items-center justify-center h-32">
+            <Link to="/admin/matches">
+              <Button variant="outline">Manage Matches</Button>
+            </Link>
           </CardContent>
         </Card>
         

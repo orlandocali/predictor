@@ -35,3 +35,15 @@ export interface GroupedStage {
   stage: MatchStage;
   matches: MatchResponse[];
 }
+
+export interface CreateMatchRequest {
+  homeTeam: string;
+  awayTeam: string;
+  stage: MatchStage;
+  groupName?: string;
+  kickoffAt: string; // ISO-8601 UTC string
+}
+
+export interface UpdateMatchStatusRequest {
+  status: MatchStatus;
+}
