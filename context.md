@@ -43,6 +43,12 @@ A full-stack prediction platform allowing registered users to forecast FIFA Worl
 - Scoring recalculates automatically when match results or penalty winners change.
 - Leaderboard uses dynamic aggregation or materialized `RankingEntry` depending on scale.
 - Admin-only user creation for v1. No public sign-ups.
+### Leaderboard Scalability Strategy
+v1 leaderboard generation should use dynamic MongoDB aggregation.
+If leaderboard scale becomes a performance issue in the future:
+* rankings may become materialized/cached
+* recalculated asynchronously after score updates
+Premature optimization should be avoided in v1.
 
 ## 🗺️ Development Phases
 1. **Foundation**: Monorepo, Docker, CORS, auth scaffolding (✅ Done)
@@ -52,3 +58,11 @@ A full-stack prediction platform allowing registered users to forecast FIFA Worl
 5. **Result Processing**: Admin result entry, scoring engine, leaderboard generation
 6. **Rankings**: Paginated table, tie handling, current user highlight
 7. **Polish**: Loading/empty states, validation, responsive UI, error boundaries
+
+## Realtime Policy
+v1 does NOT use:
+- WebSockets
+- SSE
+- live synchronization
+
+Data refresh is request-based using TanStack Query invalidation/refetching.

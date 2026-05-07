@@ -14,7 +14,7 @@
 
 ### React & TanStack Query
 - Functional components + hooks only. No class components.
-- Server state lives in TanStack Query. Client state in `zustand`/Context.
+- Server state lives in TanStack Query. Client state in Context.
 - Use optimistic updates for predictions:
   ```ts
   queryClient.setQueryData(['predictions', matchId], (old) => ({
@@ -28,6 +28,16 @@
 - shadcn/ui components only. No custom CSS unless absolutely necessary.
 - Tailwind utility-first. Extract repeated patterns into cn() or components.
 - Responsive by default: mobile-first, test at 320px, 768px, 1024px+.
+
+## Frontend Stability
+Critical application sections should use React Error Boundaries.
+Especially:
+- authenticated layouts
+- rankings pages
+- prediction forms
+- admin pages
+Avoid full application crashes caused by isolated component failures.
+
 ## ☕ Backend Rules (Spring Boot + MongoDB)
 ### Structure & Layers
 ```
@@ -39,6 +49,15 @@ controller → service → repository → model (Document)
 - Services: Business logic, transactions, scoring, locking.
 - Repositories: Spring Data Mongo. Custom queries in @Query or criteria API.
 - DTOs: Separate request/response objects. Never expose entities directly.
+Request DTOs:
+- CreateMatchRequest
+- UpdatePredictionRequest
+Response DTOs:
+- MatchResponse
+- RankingResponse
+Avoid generic:
+- MatchDTO
+- UserDTO
 ### Security & Auth
 - JWT filter extends OncePerRequestFilter
 - Short-lived access tokens (15m), refresh tokens (7d)
@@ -54,6 +73,9 @@ controller → service → repository → model (Document)
 - Indexes: Compound indexes for frequent queries (userId + matchId)
 - Avoid deep nesting; keep documents normalized where possible
 - Use Aggregation for leaderboards, not in-memory filtering
+- Avoid soft deletes in v1.
+- Prefer explicit active/inactive flags for users only.
+- Hard deletes are acceptable for non-critical development data.
 
 ## 🛡️ Domain-Specific Rules
 ### Prediction Locking
@@ -73,6 +95,19 @@ controller → service → repository → model (Document)
 - DB: Instant / UTC
 - API: ISO 8601 (2026-06-15T14:00:00Z)
 - Frontend: date-fns-tz or Intl.DateTimeFormat for display only.
+
+### Auditability
+Administrative match result changes should be auditable.
+Important actions should eventually record:
+- admin user ID
+- timestamp
+- previous value
+- updated value
+Especially for:
+- match result changes
+- knockout winner changes
+- scoring recalculations
+Full audit logging is optional in v1 but architecture should not prevent future implementation.
 
 ## 🧪 Testing Strategy
 Type	Tooling	Coverage Target
@@ -98,3 +133,10 @@ Security	OWASP ZAP / SonarQube	JWT, CORS, input sanitization
 - Leaderboard: Materialize RankingEntry if >10k users
 - Frontend: Code-split routes, lazy load heavy components, prefetch predictions
 - Backend: Connection pooling, async scoring if needed, rate limit prediction endpoints
+
+Prefer boring solutions over clever solutions.
+Controllers must not contain:
+- scoring logic
+- locking logic
+- ranking calculations
+- persistence logic

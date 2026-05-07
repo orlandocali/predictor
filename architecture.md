@@ -14,11 +14,34 @@
 - **Runtime**: Vite + React 18 + TypeScript (strict mode)
 - **State**: 
   - Server state: `@tanstack/react-query` (caching, optimistic updates, pagination)
-  - Client state: `zustand` or React Context (auth, theme, UI toggles)
+  - Client state: React Context (auth, theme, UI toggles)
 - **Forms**: `react-hook-form` + `zod` for schema validation & type safety
 - **UI**: `tailwindcss` + `shadcn/ui` (button, card, table, dialog, form, input)
 - **Routing**: `react-router-dom` (protected routes, role-based guards)
 - **Validation**: Zod schemas mirror backend DTOs; shared via `shared/` or generated types
+### Feature Ownership Structure
+Frontend code follows feature-based ownership.
+Each feature owns:
+* pages
+* components
+* hooks
+* API services
+* schemas
+* types
+
+Example:
+
+```text
+/features/predictions
+  /api
+  /components
+  /hooks
+  /schemas
+  /types
+```
+
+Avoid large global folders with mixed ownership.
+Prefer localized feature organization.
 
 ### Backend
 - **Framework**: Spring Boot 3.x (Java 17+)
@@ -28,6 +51,19 @@
 - **API**: RESTful endpoints returning standardized `{ data, error }` envelopes
 - **Error Handling**: `@ControllerAdvice` with structured error responses
 - **Logging**: SLF4J + Logback (structured, trace IDs for distributed debugging)
+
+### Backend Service Responsibilities
+Services should remain focused and separated by business responsibility.
+Suggested service structure:
+
+* MatchService
+* PredictionService
+* ScoringService
+* RankingService
+* AuthService
+
+Avoid large "god services" containing unrelated responsibilities.
+Controllers should remain thin and delegate all business logic to services.
 
 ### Database (MongoDB)
 | Collection    | Purpose                  | Key Indexes                                  |
@@ -59,14 +95,14 @@ SCORED (Points calculated, leaderboard updated)
 - **Exact Score**: `3 pts`
 - **Correct Winner/Draw**: `1 pt`
 - **Incorrect**: `0 pts`
-- Triggered on `POST /api/admin/matches/{id}/result` or manual score trigger
+- Triggered on `POST /api/v1/admin/matches/{id}/result` or manual score trigger
 - Handles extra time/penalties for knockout stages
 - Recalculates affected predictions & updates `RankingEntry`
 
 ### Leaderboard Generation
 - Dynamic aggregation via MongoDB `$group` + `$sum` + `$sort`
 - Pagination via `page`/`size` query params
-- Highlights current user position via `/api/rankings/me`
+- Highlights current user position via `/api/v1/rankings/me`
 
 ## 🌐 API Design Principles
 - Base URL: `/api`
