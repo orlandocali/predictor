@@ -14,6 +14,8 @@ spring:
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  sync:
+    worldcup-url: ${WORLDCUP_SYNC_URL:https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json}
   jwt:
     secret: ${JWT_SECRET:your-256-bit-secret-key-replace-in-production-must-be-at-least-32-chars}
     access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:900000}

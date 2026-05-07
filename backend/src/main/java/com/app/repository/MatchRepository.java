@@ -2,6 +2,7 @@ package com.app.repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import com.app.model.Match;
 import com.app.model.MatchStage;
@@ -17,4 +18,6 @@ public interface MatchRepository extends MongoRepository<Match, String> {
 	List<Match> findByStageAndStatus(MatchStage stage, MatchStatus status);
 
 	List<Match> findByKickoffAtBefore(Instant time);
+
+	Optional<Match> findByFifaMatchId(String fifaMatchId);
 }
