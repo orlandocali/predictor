@@ -32,12 +32,11 @@ services:
       retries: 3
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
     container_name: predictor-frontend
     ports:
       - "5173:80"
-    environment:
-      VITE_API_URL: http://backend:8081
     depends_on:
       - backend
     restart: unless-stopped

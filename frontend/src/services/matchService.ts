@@ -1,5 +1,13 @@
-import { apiGet } from './api';
+import { apiGet, apiPost, apiPatch } from './api';
 import type { MatchFilters, MatchResponse, GroupedStage } from '@/types/match';
+
+export interface SyncResult {
+  total: number;
+  created: number;
+  updated: number;
+  failed: number;
+  errors: string[];
+}
 
 function buildQuery(filters?: MatchFilters): string {
   const params = new URLSearchParams();
@@ -19,4 +27,16 @@ export const matchService = {
 
   getMatchById: (id: string): Promise<MatchResponse> =>
     apiGet<MatchResponse>('/api/matches/' + id),
+
+  getAdminMatches: (filters?: MatchFilters): Promise<MatchResponse[]> =>
+    apiGet<MatchResponse[]>(`/api/admin/matches/${buildQuery(filters)}`),
+
+  createMatch: (data: Record<string, unknown>): Promise<MatchResponse> =>
+    apiPost<Record<string, unknown>, MatchResponse>('/api/admin/matches/', data),
+
+  syncMatches: (): Promise<SyncResult> =>
+    apiPost<Record<string, never>, SyncResult>('/api/admin/matches/sync', {}),
+
+  updateMatchStatus: (id: string, data: { status: MatchResponse['status'] }): Promise<MatchResponse> =>
+    apiPatch<{ status: MatchResponse['status'] }, MatchResponse>(`/api/admin/matches/${id}/status`, data),
 };

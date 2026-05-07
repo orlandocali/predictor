@@ -26,7 +26,7 @@ public class MatchResponse {
 
     private MatchStage stage;
 
-    private String groupName;
+    private String group;
 
     private Instant kickoffAt;
 

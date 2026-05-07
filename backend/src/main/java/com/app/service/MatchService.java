@@ -1,9 +1,12 @@
 package com.app.service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.app.dto.CreateMatchRequest;
+import com.app.dto.GroupedStageResponse;
 import com.app.dto.MatchResponse;
 import com.app.exception.ResourceNotFoundException;
 import com.app.mapper.MatchMapper;
@@ -55,10 +58,30 @@ public class MatchService {
             matches = matchRepository.findByStageAndStatus(stage, status);
         }
 
+        log.debug("Found {} matches (stage={}, status={})", matches.size(), stage, status);
         return matches.stream()
                 .map(matchMapper::toResponse)
                 .toList();
     }
+
+        public List<GroupedStageResponse> getGroupedMatches() {
+        log.debug("Fetching all matches grouped by stage");
+        List<Match> all = matchRepository.findAll();
+        log.debug("Grouping {} matches by stage", all.size());
+
+        return all.stream()
+            .sorted(Comparator.comparing(Match::getKickoffAt))
+            .collect(Collectors.groupingBy(Match::getStage))
+            .entrySet().stream()
+            .sorted(Comparator.comparingInt(e -> e.getKey().ordinal()))
+            .map(entry -> GroupedStageResponse.builder()
+                .stage(entry.getKey())
+                .matches(entry.getValue().stream()
+                    .map(matchMapper::toResponse)
+                    .toList())
+                .build())
+            .toList();
+        }
 
     public MatchResponse updateMatch(String id, CreateMatchRequest request) {
         log.info("Updating match id '{}'", id);
@@ -80,8 +103,14 @@ public class MatchService {
         existingMatch.setVenue(request.getVenue());
         if (request.getResult() != null) {
             existingMatch.setResult(request.getResult());
+            log.info("Match '{}' result set: {}-{}{}", id,
+                    request.getResult().getHomeScore(),
+                    request.getResult().getAwayScore(),
+                    request.getResult().getPenaltyWinner() != null
+                            ? " (pen: " + request.getResult().getPenaltyWinner() + ")" : "");
         }
 
+        log.info("Match '{}' updated: {} vs {} at {}", id, existingMatch.getHomeTeam(), existingMatch.getAwayTeam(), existingMatch.getKickoffAt());
         return matchMapper.toResponse(matchRepository.save(existingMatch));
     }
 
@@ -89,6 +118,7 @@ public class MatchService {
         log.info("Deleting match id '{}'", id);
         Match existingMatch = matchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
+        log.info("Deleting match '{}': {} vs {}", id, existingMatch.getHomeTeam(), existingMatch.getAwayTeam());
         matchRepository.delete(existingMatch);
     }
 }

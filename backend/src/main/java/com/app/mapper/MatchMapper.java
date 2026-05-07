@@ -23,7 +23,7 @@ public class MatchMapper {
                 .homeTeam(match.getHomeTeam())
                 .awayTeam(match.getAwayTeam())
                 .stage(match.getStage())
-                .groupName(match.getGroupName())
+            .group(match.getGroupName())
                 .kickoffAt(match.getKickoffAt())
                 .status(match.getStatus())
                 .venue(match.getVenue())

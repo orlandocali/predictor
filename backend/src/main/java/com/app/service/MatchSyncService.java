@@ -1,5 +1,6 @@
 package com.app.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.app.dto.RemoteMatchDto;
 import com.app.dto.RemoteWorldCupDto;
 import com.app.dto.SyncResultResponse;
@@ -16,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +34,7 @@ public class MatchSyncService {
 
     private final MatchRepository matchRepository;
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;
 
     @Value("${app.sync.worldcup-url:https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json}")
     private String worldCupUrl;
@@ -83,18 +86,30 @@ public class MatchSyncService {
     }
 
     private RemoteWorldCupDto fetchRemoteData() {
+        String body;
         try {
-            return webClient.get()
+            body = webClient.get()
                     .uri(worldCupUrl)
                     .retrieve()
-                    .bodyToMono(RemoteWorldCupDto.class)
+                    .bodyToMono(String.class)
                     .block(Duration.ofSeconds(30));
         } catch (WebClientResponseException e) {
-            log.error("HTTP error fetching remote data: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
+            log.error("HTTP error fetching remote data: status={}", e.getStatusCode());
             throw new RuntimeException("Failed to fetch remote match data: HTTP " + e.getStatusCode(), e);
         } catch (Exception e) {
-            log.error("Network error fetching remote data", e);
+            log.error("Network error fetching remote data: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch remote match data: " + e.getMessage(), e);
+        }
+
+        if (body == null || body.isBlank()) {
+            throw new RuntimeException("Remote data source returned an empty response");
+        }
+
+        try {
+            return objectMapper.readValue(body, RemoteWorldCupDto.class);
+        } catch (Exception e) {
+            log.error("Failed to parse remote match data: {}", e.getMessage());
+            throw new RuntimeException("Failed to parse remote match data: " + e.getMessage(), e);
         }
     }
 
@@ -102,12 +117,12 @@ public class MatchSyncService {
      * Upsert a match. Returns true if created, false if updated.
      */
     private boolean upsertMatch(RemoteMatchDto remote) {
-        String fifaMatchId = remote.getNum() != null ? String.valueOf(remote.getNum()) : null;
+        // Prefer numeric match number; fall back to composite key for group-stage matches without a num
+        String fifaMatchId = remote.getNum() != null
+                ? String.valueOf(remote.getNum())
+                : remote.getTeam1() + "|" + remote.getTeam2() + "|" + remote.getDate();
 
-        Optional<Match> existing = Optional.empty();
-        if (fifaMatchId != null) {
-            existing = matchRepository.findByFifaMatchId(fifaMatchId);
-        }
+        Optional<Match> existing = matchRepository.findByFifaMatchId(fifaMatchId);
 
         Instant kickoffAt = parseKickoffAt(remote.getDate(), remote.getTime());
         MatchStage stage = parseStage(remote.getRound(), remote.getGroup());
@@ -152,10 +167,35 @@ public class MatchSyncService {
         if (date == null) {
             throw new IllegalArgumentException("Match date is null");
         }
-        String timeStr = (time != null && !time.isBlank()) ? time : "00:00";
+
+        String rawTime = (time != null && !time.isBlank()) ? time.trim() : "00:00";
+        ZoneOffset offset = ZoneOffset.UTC;
+
+        // Handle formats like "13:00 UTC-6", "20:00 UTC+5:30", "12:00 UTC-4"
+        if (rawTime.contains(" ")) {
+            String[] parts = rawTime.split(" ", 2);
+            rawTime = parts[0]; // e.g. "13:00"
+            String tzPart = parts[1]; // e.g. "UTC-6"
+            if (tzPart.startsWith("UTC")) {
+                String offsetStr = tzPart.substring(3); // e.g. "-6", "+5:30"
+                if (!offsetStr.isEmpty()) {
+                    try {
+                        offset = ZoneOffset.of(offsetStr);
+                    } catch (DateTimeException e) {
+                        // Try parsing as plain integer hours (e.g. "-6" -> ZoneOffset.ofHours(-6))
+                        try {
+                            offset = ZoneOffset.ofHours(Integer.parseInt(offsetStr));
+                        } catch (NumberFormatException nfe) {
+                            log.warn("Unrecognised UTC offset '{}', defaulting to UTC", tzPart);
+                        }
+                    }
+                }
+            }
+        }
+
         LocalDate localDate = LocalDate.parse(date);
-        LocalTime localTime = LocalTime.parse(timeStr);
-        return LocalDateTime.of(localDate, localTime).toInstant(ZoneOffset.UTC);
+        LocalTime localTime = LocalTime.parse(rawTime);
+        return LocalDateTime.of(localDate, localTime).toInstant(offset);
     }
 
     private MatchStage parseStage(String round, String group) {

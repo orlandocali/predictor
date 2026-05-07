@@ -2,9 +2,12 @@ package com.app.controller;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +27,7 @@ import com.app.service.MatchService;
 
 import jakarta.validation.Valid;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/matches")
 @PreAuthorize("hasRole('ADMIN')")
@@ -60,7 +64,9 @@ public class MatchController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteMatch(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Void>> deleteMatch(@PathVariable String id,
+            @AuthenticationPrincipal UserDetails principal) {
+        log.info("Admin '{}' requested deletion of match '{}'", principal.getUsername(), id);
         matchService.deleteMatch(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }

@@ -1,10 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { matchService } from '@/services/matchService';
+import type { SyncResult } from '@/services/matchService';
 
 export default function AdminDashboardPage() {
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  const syncMutation = useMutation({
+    mutationFn: () => matchService.syncMatches(),
+    onSuccess: (data) => {
+      setSyncResult(data);
+      setSyncError(null);
+    },
+    onError: (error: unknown) => {
+      setSyncResult(null);
+      setSyncError(error instanceof Error ? error.message : 'Sync failed');
+    },
+  });
+
+  const handleSyncClick = () => {
+    setSyncResult(null);
+    setSyncError(null);
+    syncMutation.mutate();
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex items-start justify-between">
@@ -39,6 +63,27 @@ export default function AdminDashboardPage() {
             <Link to="/admin/matches">
               <Button variant="outline">Manage Matches</Button>
             </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
+          <CardHeader>
+            <CardTitle className="text-xl">Data Sync</CardTitle>
+            <CardDescription>Fetch and upsert latest match data from the remote source.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center h-32 gap-2">
+            <Button variant="outline" onClick={handleSyncClick} disabled={syncMutation.isPending}>
+              {syncMutation.isPending ? 'Syncing...' : 'Sync Now'}
+            </Button>
+            {syncResult ? (
+              <p className="text-xs text-muted-foreground">
+                {'↑ '}
+                {syncResult.created} created {'· '}
+                {syncResult.updated} updated {'· '}
+                {syncResult.failed} failed
+              </p>
+            ) : null}
+            {syncError ? <p className="text-xs text-red-600">{syncError}</p> : null}
           </CardContent>
         </Card>
         
