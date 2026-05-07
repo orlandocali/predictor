@@ -1,4 +1,4 @@
-package com.app.exception;
+﻿package com.app.exception;
 
 import com.app.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +59,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
         log.debug("Resource not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+    @ExceptionHandler(PredictionLockedException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePredictionLocked(PredictionLockedException ex) {
+        log.warn("Prediction locked: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
