@@ -8,6 +8,8 @@ spring:
       database: predictor
   application:
     name: predictor
+  main:
+    allow-bean-definition-overriding: true
 
 app:
   cors:
