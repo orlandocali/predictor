@@ -9,6 +9,7 @@ import com.app.repository.RefreshTokenRepository;
 import com.app.repository.UserRepository;
 import com.app.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -31,6 +33,8 @@ public class AuthService {
     private long refreshTokenExpirationMs;
 
     public LoginResponse login(LoginRequest request) {
+        log.info("Login attempt for user '{}'", request.getUsername());
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
@@ -42,6 +46,8 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(username, user.getRole().name());
         String refreshTokenValue = createRefreshToken(user);
 
+    log.info("User '{}' logged in successfully with role '{}'", username, user.getRole());
+
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshTokenValue)
@@ -52,14 +58,21 @@ public class AuthService {
     }
 
     public LoginResponse refresh(String refreshTokenValue) {
+        log.debug("Refresh token rotation requested");
+
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> {
+                    log.warn("Refresh attempt with unknown token");
+                    return new IllegalArgumentException("Invalid refresh token");
+                });
 
         if (storedToken.isRevoked()) {
+            log.warn("Refresh attempt with revoked token for user '{}'", storedToken.getUsername());
             throw new IllegalArgumentException("Refresh token has been revoked");
         }
 
         if (storedToken.getExpiresAt().isBefore(Instant.now())) {
+            log.warn("Refresh attempt with expired token for user '{}'", storedToken.getUsername());
             refreshTokenRepository.delete(storedToken);
             throw new IllegalArgumentException("Refresh token has expired");
         }
@@ -68,12 +81,15 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!user.isActive()) {
+            log.warn("Refresh attempt for disabled user '{}'", user.getUsername());
             throw new IllegalArgumentException("User account is disabled");
         }
 
         refreshTokenRepository.delete(storedToken);
         String newRefreshTokenValue = createRefreshToken(user);
         String newAccessToken = jwtUtil.generateAccessToken(user.getUsername(), user.getRole().name());
+
+        log.info("Refresh token rotated for user '{}'", user.getUsername());
 
         return LoginResponse.builder()
                 .accessToken(newAccessToken)
@@ -88,6 +104,7 @@ public class AuthService {
         refreshTokenRepository.findByToken(refreshTokenValue).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
+            log.info("User '{}' logged out, refresh token revoked", token.getUsername());
         });
     }
 
@@ -107,6 +124,7 @@ public class AuthService {
                 .revoked(false)
                 .build();
         refreshTokenRepository.save(refreshToken);
+            log.debug("Refresh token created for user '{}'", user.getUsername());
         return tokenValue;
     }
 }

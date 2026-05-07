@@ -21,3 +21,11 @@ app:
   admin:
     username: ${ADMIN_USERNAME:admin}
     password: ${ADMIN_PASSWORD:7XK@7-4Hs69TLhv7}
+
+logging:
+  level:
+    com.app: DEBUG
+    org.springframework.security: INFO
+    org.springframework.data.mongodb: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
