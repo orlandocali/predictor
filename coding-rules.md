@@ -30,9 +30,11 @@
 - Responsive by default: mobile-first, test at 320px, 768px, 1024px+.
 ## ☕ Backend Rules (Spring Boot + MongoDB)
 ### Structure & Layers
+```
 controller → service → repository → model (Document)
      ↓          ↓           ↓
    DTO/Req    DTO/Resp   Validation
+```
 - Controllers: Thin. Delegate to services. Return DTOs.
 - Services: Business logic, transactions, scoring, locking.
 - Repositories: Spring Data Mongo. Custom queries in @Query or criteria API.
@@ -57,9 +59,11 @@ controller → service → repository → model (Document)
 ### Prediction Locking
 - Lock threshold: kickoffAt minus 12 hours
 - Backend validation mandatory:
-if (now.isAfter(match.getKickoffAt().minusHours(12))) {
-  throw new PredictionLockedException("Prediction window closed");
-}
+``` java
+    if (now.isAfter(match.getKickoffAt().minusHours(12))) {
+    throw new PredictionLockedException("Prediction window closed");
+    }
+```
 - Frontend shows disabled state but backend enforces.
 ### Scoring Engine
 - Immutable once scored. Recalculation only on result change.
