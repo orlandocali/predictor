@@ -1,4 +1,4 @@
-﻿package com.app.exception;
+package com.app.exception;
 
 public class PredictionLockedException extends RuntimeException {
 

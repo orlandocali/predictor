@@ -13,6 +13,7 @@ import AdminRoute from '@/routes/AdminRoute';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import MatchesPage from '@/features/matches/pages/MatchesPage';
 import MatchDetailPage from '@/features/matches/pages/MatchDetailPage';
+import { MatchManagementPage, UserManagementPage } from '@/features/admin';
 
 export default function Routes() {
   return (
@@ -35,6 +36,8 @@ export default function Routes() {
         <Route element={<AdminRoute />}>
           <Route path="admin" element={<MainLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="matches" element={<MatchManagementPage />} />
+            <Route path="users" element={<UserManagementPage />} />
           </Route>
         </Route>
       </Route>

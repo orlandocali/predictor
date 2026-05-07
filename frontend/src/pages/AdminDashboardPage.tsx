@@ -49,8 +49,10 @@ export default function AdminDashboardPage() {
             <CardTitle className="text-xl">User Management</CardTitle>
             <CardDescription>View and manage all registered users.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-32 text-muted-foreground italic">
-            Content coming soon
+          <CardContent className="flex items-center justify-center h-32">
+            <Link to="/admin/users">
+              <Button variant="outline">Manage Users</Button>
+            </Link>
           </CardContent>
         </Card>
 

@@ -1,4 +1,4 @@
-﻿package com.app.service;
+package com.app.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

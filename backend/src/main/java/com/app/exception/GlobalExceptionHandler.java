@@ -1,4 +1,4 @@
-﻿package com.app.exception;
+package com.app.exception;
 
 import com.app.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
