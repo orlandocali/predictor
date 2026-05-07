@@ -3,8 +3,6 @@ package com.app.service;
 import java.time.Instant;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import com.app.dto.CreateMatchRequest;
 import com.app.dto.MatchResponse;
 import com.app.exception.ResourceNotFoundException;
@@ -13,7 +11,10 @@ import com.app.model.Match;
 import com.app.model.MatchStage;
 import com.app.model.MatchStatus;
 import com.app.repository.MatchRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class MatchService {
 
@@ -26,17 +27,22 @@ public class MatchService {
     }
 
     public MatchResponse createMatch(CreateMatchRequest request) {
+        log.info("Creating match: {} vs {}", request.getHomeTeam(), request.getAwayTeam());
         Match match = matchMapper.toEntity(request);
-        return matchMapper.toResponse(matchRepository.save(match));
+        Match saved = matchRepository.save(match);
+        log.info("Match created with id '{}'", saved.getId());
+        return matchMapper.toResponse(saved);
     }
 
     public MatchResponse getMatchById(String id) {
+        log.debug("Fetching match id '{}'", id);
         return matchRepository.findById(id)
                 .map(matchMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
     }
 
     public List<MatchResponse> getAllMatches(MatchStage stage, MatchStatus status) {
+        log.debug("Fetching matches stage={} status={}", stage, status);
         List<Match> matches;
 
         if (stage == null && status == null) {
@@ -55,6 +61,7 @@ public class MatchService {
     }
 
     public MatchResponse updateMatch(String id, CreateMatchRequest request) {
+        log.info("Updating match id '{}'", id);
         Match existingMatch = matchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
 
@@ -65,6 +72,9 @@ public class MatchService {
         existingMatch.setGroupName(request.getGroupName());
         existingMatch.setKickoffAt(Instant.parse(request.getKickoffAt()));
         if (request.getStatus() != null) {
+            if (request.getStatus() != existingMatch.getStatus()) {
+                log.info("Match '{}' status changed: {} -> {}", id, existingMatch.getStatus(), request.getStatus());
+            }
             existingMatch.setStatus(request.getStatus());
         }
         existingMatch.setVenue(request.getVenue());
@@ -76,6 +86,7 @@ public class MatchService {
     }
 
     public void deleteMatch(String id) {
+        log.info("Deleting match id '{}'", id);
         Match existingMatch = matchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
         matchRepository.delete(existingMatch);
