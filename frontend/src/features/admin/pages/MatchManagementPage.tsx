@@ -1,9 +1,9 @@
 // src/features/admin/pages/MatchManagementPage.tsx
-// Admin page for managing matches: create new, view all, transition status.
+// Admin page for managing matches: create, edit, delete, and transition status.
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -14,10 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import MatchForm from '@/features/admin/components/MatchForm';
 import {
   useAdminMatches,
   useUpdateMatchStatus,
+  useDeleteMatch,
 } from '@/features/admin/hooks/useMatchAdmin';
 import type { MatchResponse, MatchStatus } from '@/types/match';
 
@@ -25,12 +34,12 @@ import type { MatchResponse, MatchStatus } from '@/types/match';
 // Label maps
 // ---------------------------------------------------------------------------
 const STAGE_LABELS: Record<string, string> = {
-  GROUP_STAGE: 'Group Stage',
-  ROUND_OF_16: 'Round of 16',
+  GROUP_STAGE:   'Group Stage',
+  ROUND_OF_16:   'Round of 16',
   QUARTER_FINAL: 'Quarter-Final',
-  SEMI_FINAL: 'Semi-Final',
-  THIRD_PLACE: 'Third Place',
-  FINAL: 'Final',
+  SEMI_FINAL:    'Semi-Final',
+  THIRD_PLACE:   'Third Place',
+  FINAL:         'Final',
 };
 
 const STATUS_CONFIG: Record<
@@ -43,7 +52,6 @@ const STATUS_CONFIG: Record<
   SCORED:    { label: 'Scored',    variant: 'destructive' },
 };
 
-// Valid next state for each status
 const NEXT_STATUS: Partial<Record<MatchStatus, MatchStatus>> = {
   SCHEDULED: 'LOCKED',
   LOCKED:    'FINISHED',
@@ -89,7 +97,33 @@ function StatusTransitionButton({ match }: { match: MatchResponse }) {
 // ---------------------------------------------------------------------------
 export default function MatchManagementPage() {
   const [formOpen, setFormOpen] = useState(false);
+  const [editingMatch, setEditingMatch] = useState<MatchResponse | undefined>();
+  const [deletingMatch, setDeletingMatch] = useState<MatchResponse | undefined>();
+
   const { data: matches, isLoading, isError } = useAdminMatches();
+  const deleteMatch = useDeleteMatch();
+
+  function openCreate() {
+    setEditingMatch(undefined);
+    setFormOpen(true);
+  }
+
+  function openEdit(match: MatchResponse) {
+    setEditingMatch(match);
+    setFormOpen(true);
+  }
+
+  function handleFormClose(open: boolean) {
+    setFormOpen(open);
+    if (!open) setEditingMatch(undefined);
+  }
+
+  function confirmDelete() {
+    if (!deletingMatch) return;
+    deleteMatch.mutate(deletingMatch.id, {
+      onSettled: () => setDeletingMatch(undefined),
+    });
+  }
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -101,14 +135,48 @@ export default function MatchManagementPage() {
             Create matches and manage their lifecycle status.
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
+        <Button onClick={openCreate}>
           <PlusCircle className="mr-2 h-4 w-4" />
           New Match
         </Button>
       </div>
 
-      {/* Match creation dialog */}
-      <MatchForm open={formOpen} onOpenChange={setFormOpen} />
+      {/* Create / Edit dialog */}
+      <MatchForm open={formOpen} onOpenChange={handleFormClose} match={editingMatch} />
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deletingMatch != null} onOpenChange={(open) => { if (!open) setDeletingMatch(undefined); }}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Delete match?</DialogTitle>
+            <DialogDescription>
+              {deletingMatch && (
+                <>
+                  <span className="font-medium">{deletingMatch.homeTeam}</span>
+                  {' vs '}
+                  <span className="font-medium">{deletingMatch.awayTeam}</span>
+                  {' will be permanently deleted. This cannot be undone.'}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingMatch(undefined)} disabled={deleteMatch.isPending}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMatch.isPending}
+            >
+              {deleteMatch.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Loading state */}
       {isLoading && (
@@ -128,11 +196,7 @@ export default function MatchManagementPage() {
       {!isLoading && !isError && matches?.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-20 text-center">
           <p className="text-muted-foreground">No matches yet.</p>
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={() => setFormOpen(true)}
-          >
+          <Button variant="outline" className="mt-4" onClick={openCreate}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Create the first match
           </Button>
@@ -169,8 +233,27 @@ export default function MatchManagementPage() {
                     <TableCell>
                       <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <StatusTransitionButton match={match} />
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                        <StatusTransitionButton match={match} />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEdit(match)}
+                          title="Edit match"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setDeletingMatch(match)}
+                          title="Delete match"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

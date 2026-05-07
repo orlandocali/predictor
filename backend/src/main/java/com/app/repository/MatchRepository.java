@@ -17,6 +17,10 @@ public interface MatchRepository extends MongoRepository<Match, String> {
 
 	List<Match> findByStageAndStatus(MatchStage stage, MatchStatus status);
 
+	List<Match> findByGroupName(String groupName);
+
+	List<Match> findByGroupNameAndStatus(String groupName, MatchStatus status);
+
 	List<Match> findByKickoffAtBefore(Instant time);
 
 	Optional<Match> findByFifaMatchId(String fifaMatchId);

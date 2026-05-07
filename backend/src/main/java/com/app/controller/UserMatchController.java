@@ -28,9 +28,10 @@ public class UserMatchController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<MatchResponse>>> getAllMatches(
             @RequestParam(required = false) MatchStage stage,
-            @RequestParam(required = false) MatchStatus status) {
-        log.debug("Public match list requested: stage={} status={}", stage, status);
-        return ResponseEntity.ok(ApiResponse.success(matchService.getAllMatches(stage, status)));
+            @RequestParam(required = false) MatchStatus status,
+            @RequestParam(required = false) String groupName) {
+        log.debug("Public match list requested: stage={} status={} groupName={}", stage, status, groupName);
+        return ResponseEntity.ok(ApiResponse.success(matchService.getAllMatches(stage, status, groupName)));
     }
 
     @GetMapping("/grouped")

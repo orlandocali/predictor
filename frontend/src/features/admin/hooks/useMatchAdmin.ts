@@ -85,6 +85,43 @@ export function useCreateMatch() {
 }
 
 // ---------------------------------------------------------------------------
+// useUpdateMatch — PUT /api/v1/admin/matches/{id}
+// ---------------------------------------------------------------------------
+export function useUpdateMatch() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, values }: { id: string; values: CreateMatchFormValues }) => {
+      const { groupName, kickoffAt, ...rest } = values;
+      return matchService.updateMatch(id, {
+        ...rest,
+        groupName: groupName || undefined,
+        kickoffAt: new Date(kickoffAt + ':00Z').toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_MATCHES_KEY });
+      queryClient.invalidateQueries({ queryKey: MATCHES_KEY });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// useDeleteMatch — DELETE /api/v1/admin/matches/{id}
+// ---------------------------------------------------------------------------
+export function useDeleteMatch() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => matchService.deleteMatch(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_MATCHES_KEY });
+      queryClient.invalidateQueries({ queryKey: MATCHES_KEY });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
 // useUpdateMatchStatus — PATCH /api/v1/admin/matches/{id}/status
 // Optimistic update: immediately reflect the new status in the admin cache.
 // Rolls back on error; re-syncs on settled.

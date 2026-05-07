@@ -115,4 +115,25 @@ export async function apiPatch<TBody, TResponse>(
   return response.data.data;
 }
 
+export async function apiPut<TBody, TResponse>(
+  url: string,
+  body: TBody
+): Promise<TResponse> {
+  const response = await api.put<ApiResponse<TResponse>>(url, body);
+  if (response.data.error) {
+    throw new Error(response.data.error);
+  }
+  if (response.data.data == null) {
+    throw new Error('Received null data from server');
+  }
+  return response.data.data;
+}
+
+export async function apiDelete(url: string): Promise<void> {
+  const response = await api.delete<ApiResponse<null>>(url);
+  if (response.data.error) {
+    throw new Error(response.data.error);
+  }
+}
+
 export default api;

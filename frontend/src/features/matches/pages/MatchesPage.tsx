@@ -34,6 +34,8 @@ const STATUS_LABELS: Record<MatchStatus, string> = {
   SCORED:    'Scored',
 };
 
+const ALL_GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
 function FilterPill({
   active,
   onClick,
@@ -58,7 +60,7 @@ function FilterPill({
 export default function MatchesPage() {
   const [filters, setFilters] = useState<MatchFilters>({});
 
-  const hasFilters = filters.stage != null || filters.status != null;
+  const hasFilters = filters.stage != null || filters.status != null || filters.group != null;
 
   const grouped = useGroupedMatches();
   const filtered = useMatches(filters);
@@ -70,8 +72,16 @@ export default function MatchesPage() {
   }
 
   function setStage(stage: MatchStage | undefined) {
-    setFilters((f) => ({ ...f, stage }));
+    // Clearing stage also clears group (group only applies to GROUP_STAGE)
+    setFilters((f) => ({ ...f, stage, group: stage !== 'GROUP_STAGE' ? undefined : f.group }));
   }
+
+  function setGroup(group: string | undefined) {
+    // Selecting a group implicitly filters GROUP_STAGE — clear stage filter to avoid conflict
+    setFilters((f) => ({ ...f, group, stage: group != null ? undefined : f.stage }));
+  }
+
+  const showGroupFilter = filters.stage == null || filters.stage === 'GROUP_STAGE';
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
@@ -114,7 +124,7 @@ export default function MatchesPage() {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Stage</p>
           <div className="flex flex-wrap gap-2">
-            <FilterPill active={filters.stage == null} onClick={() => setStage(undefined)}>
+            <FilterPill active={filters.stage == null && filters.group == null} onClick={() => setStage(undefined)}>
               All Stages
             </FilterPill>
             {ALL_STAGES.map((s) => (
@@ -128,6 +138,27 @@ export default function MatchesPage() {
             ))}
           </div>
         </div>
+
+        {/* Group filter — only shown when stage is GROUP_STAGE or unset */}
+        {showGroupFilter && (
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Group</p>
+            <div className="flex flex-wrap gap-2">
+              <FilterPill active={filters.group == null} onClick={() => setGroup(undefined)}>
+                All Groups
+              </FilterPill>
+              {ALL_GROUPS.map((g) => (
+                <FilterPill
+                  key={g}
+                  active={filters.group === g}
+                  onClick={() => setGroup(filters.group === g ? undefined : g)}
+                >
+                  Group {g}
+                </FilterPill>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}

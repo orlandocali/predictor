@@ -44,11 +44,15 @@ public class MatchService {
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
     }
 
-    public List<MatchResponse> getAllMatches(MatchStage stage, MatchStatus status) {
-        log.debug("Fetching matches stage={} status={}", stage, status);
+    public List<MatchResponse> getAllMatches(MatchStage stage, MatchStatus status, String groupName) {
+        log.debug("Fetching matches stage={} status={} groupName={}", stage, status, groupName);
         List<Match> matches;
 
-        if (stage == null && status == null) {
+        if (groupName != null) {
+            matches = status != null
+                    ? matchRepository.findByGroupNameAndStatus(groupName, status)
+                    : matchRepository.findByGroupName(groupName);
+        } else if (stage == null && status == null) {
             matches = matchRepository.findAll();
         } else if (stage != null && status == null) {
             matches = matchRepository.findByStage(stage);
@@ -58,7 +62,7 @@ public class MatchService {
             matches = matchRepository.findByStageAndStatus(stage, status);
         }
 
-        log.debug("Found {} matches (stage={}, status={})", matches.size(), stage, status);
+        log.debug("Found {} matches (stage={}, status={}, groupName={})", matches.size(), stage, status, groupName);
         return matches.stream()
                 .map(matchMapper::toResponse)
                 .toList();
@@ -112,6 +116,30 @@ public class MatchService {
 
         log.info("Match '{}' updated: {} vs {} at {}", id, existingMatch.getHomeTeam(), existingMatch.getAwayTeam(), existingMatch.getKickoffAt());
         return matchMapper.toResponse(matchRepository.save(existingMatch));
+    }
+
+    public MatchResponse updateMatchStatus(String id, MatchStatus newStatus) {
+        Match match = matchRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
+
+        validateStatusTransition(match.getStatus(), newStatus);
+
+        log.info("Match '{}' status transition: {} -> {}", id, match.getStatus(), newStatus);
+        match.setStatus(newStatus);
+        return matchMapper.toResponse(matchRepository.save(match));
+    }
+
+    private void validateStatusTransition(MatchStatus current, MatchStatus next) {
+        boolean valid = switch (current) {
+            case SCHEDULED -> next == MatchStatus.LOCKED;
+            case LOCKED    -> next == MatchStatus.FINISHED;
+            case FINISHED  -> next == MatchStatus.SCORED;
+            case SCORED    -> false;
+        };
+        if (!valid) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition: " + current + " -> " + next);
+        }
     }
 
     public void deleteMatch(String id) {

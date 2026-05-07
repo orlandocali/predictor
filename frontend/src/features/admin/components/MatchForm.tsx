@@ -1,6 +1,6 @@
 // src/features/admin/components/MatchForm.tsx
-// Dialog form for creating a new match.
-// Opens from MatchManagementPage via controlled open/onOpenChange props.
+// Dialog form for creating or editing a match.
+// Pass `match` to open in edit mode; omit it for create mode.
 
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -34,21 +34,32 @@ import {
   createMatchSchema,
   type CreateMatchFormValues,
   useCreateMatch,
+  useUpdateMatch,
 } from '@/features/admin/hooks/useMatchAdmin';
+import type { MatchResponse } from '@/types/match';
 
 // ---------------------------------------------------------------------------
 // Label maps
 // ---------------------------------------------------------------------------
 const STAGE_LABELS: Record<string, string> = {
-  GROUP_STAGE: 'Group Stage',
-  ROUND_OF_16: 'Round of 16',
+  GROUP_STAGE:   'Group Stage',
+  ROUND_OF_16:   'Round of 16',
   QUARTER_FINAL: 'Quarter-Final',
-  SEMI_FINAL: 'Semi-Final',
-  THIRD_PLACE: 'Third Place',
-  FINAL: 'Final',
+  SEMI_FINAL:    'Semi-Final',
+  THIRD_PLACE:   'Third Place',
+  FINAL:         'Final',
 };
 
 const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+// Converts a UTC ISO instant to the value expected by datetime-local input (UTC shown as-is).
+function toDateTimeLocalUTC(utcIso: string): string {
+  return utcIso.slice(0, 16); // "2026-06-15T14:00"
+}
 
 // ---------------------------------------------------------------------------
 // Props
@@ -56,20 +67,24 @@ const GROUPS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 interface MatchFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  match?: MatchResponse; // present = edit mode
 }
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
-export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
+export default function MatchForm({ open, onOpenChange, match }: MatchFormProps) {
+  const isEdit = match != null;
   const createMatch = useCreateMatch();
+  const updateMatch = useUpdateMatch();
+  const mutation = isEdit ? updateMatch : createMatch;
 
   const form = useForm<CreateMatchFormValues>({
     resolver: zodResolver(createMatchSchema),
     defaultValues: {
-      homeTeam: '',
-      awayTeam: '',
-      stage: 'GROUP_STAGE',
+      homeTeam:  '',
+      awayTeam:  '',
+      stage:     'GROUP_STAGE',
       groupName: '',
       kickoffAt: '',
     },
@@ -78,20 +93,33 @@ export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
   const stage = useWatch({ control: form.control, name: 'stage' });
   const isGroupStage = stage === 'GROUP_STAGE';
 
-  // Reset form when dialog closes
+  // Populate form when opening in edit mode or reset when closing
   useEffect(() => {
-    if (!open) {
-      form.reset();
+    if (open && isEdit) {
+      form.reset({
+        homeTeam:  match.homeTeam,
+        awayTeam:  match.awayTeam,
+        stage:     match.stage,
+        groupName: match.group ?? '',
+        kickoffAt: toDateTimeLocalUTC(match.kickoffAt),
+      });
+    } else if (!open) {
+      form.reset({ homeTeam: '', awayTeam: '', stage: 'GROUP_STAGE', groupName: '', kickoffAt: '' });
       createMatch.reset();
+      updateMatch.reset();
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function onSubmit(values: CreateMatchFormValues) {
     try {
-      await createMatch.mutateAsync(values);
+      if (isEdit) {
+        await updateMatch.mutateAsync({ id: match.id, values });
+      } else {
+        await createMatch.mutateAsync(values);
+      }
       onOpenChange(false);
     } catch {
-      // Error is surfaced via createMatch.error below
+      // Error surfaced via mutation.error below
     }
   }
 
@@ -99,7 +127,7 @@ export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Create New Match</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Match' : 'Create New Match'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -194,12 +222,12 @@ export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
               name="kickoffAt"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kickoff Date & Time</FormLabel>
+                  <FormLabel>Kickoff Date & Time (UTC)</FormLabel>
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
                   <p className="text-xs text-muted-foreground">
-                    Enter your local time — it will be stored as UTC automatically.
+                    Enter time in UTC. It will be stored as-is.
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -207,11 +235,11 @@ export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
             />
 
             {/* Server-side error */}
-            {createMatch.isError && (
+            {mutation.isError && (
               <p className="text-sm font-medium text-destructive">
-                {createMatch.error instanceof Error
-                  ? createMatch.error.message
-                  : 'Failed to create match. Please try again.'}
+                {mutation.error instanceof Error
+                  ? mutation.error.message
+                  : `Failed to ${isEdit ? 'update' : 'create'} match. Please try again.`}
               </p>
             )}
 
@@ -220,15 +248,15 @@ export default function MatchForm({ open, onOpenChange }: MatchFormProps) {
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={createMatch.isPending}
+                disabled={mutation.isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMatch.isPending}>
-                {createMatch.isPending && (
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Match
+                {isEdit ? 'Save Changes' : 'Create Match'}
               </Button>
             </DialogFooter>
           </form>

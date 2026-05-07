@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPatch } from './api';
+import { apiGet, apiPost, apiPatch, apiPut, apiDelete } from './api';
 import type { MatchFilters, MatchResponse, GroupedStage } from '@/types/match';
 
 export interface SyncResult {
@@ -39,4 +39,10 @@ export const matchService = {
 
   updateMatchStatus: (id: string, data: { status: MatchResponse['status'] }): Promise<MatchResponse> =>
     apiPatch<{ status: MatchResponse['status'] }, MatchResponse>(`/api/v1/admin/matches/${id}/status`, data),
+
+  updateMatch: (id: string, data: Record<string, unknown>): Promise<MatchResponse> =>
+    apiPut<Record<string, unknown>, MatchResponse>(`/api/v1/admin/matches/${id}`, data),
+
+  deleteMatch: (id: string): Promise<void> =>
+    apiDelete(`/api/v1/admin/matches/${id}`),
 };

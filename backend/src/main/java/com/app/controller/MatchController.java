@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.dto.ApiResponse;
 import com.app.dto.CreateMatchRequest;
 import com.app.dto.MatchResponse;
+import com.app.dto.UpdateMatchStatusRequest;
 import com.app.model.MatchStage;
 import com.app.model.MatchStatus;
 import com.app.service.MatchService;
@@ -48,8 +50,9 @@ public class MatchController {
     @GetMapping("/")
     public ResponseEntity<ApiResponse<List<MatchResponse>>> getAllMatches(
             @RequestParam(required = false) MatchStage stage,
-            @RequestParam(required = false) MatchStatus status) {
-        return ResponseEntity.ok(ApiResponse.success(matchService.getAllMatches(stage, status)));
+            @RequestParam(required = false) MatchStatus status,
+            @RequestParam(required = false) String groupName) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getAllMatches(stage, status, groupName)));
     }
 
     @GetMapping("/{id}")
@@ -61,6 +64,13 @@ public class MatchController {
     public ResponseEntity<ApiResponse<MatchResponse>> updateMatch(@PathVariable String id,
             @Valid @RequestBody CreateMatchRequest request) {
         return ResponseEntity.ok(ApiResponse.success(matchService.updateMatch(id, request)));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<MatchResponse>> updateMatchStatus(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateMatchStatusRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.updateMatchStatus(id, request.getStatus())));
     }
 
     @DeleteMapping("/{id}")
