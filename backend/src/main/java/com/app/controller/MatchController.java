@@ -2,15 +2,31 @@ package com.app.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.dto.MatchDTO;
+import com.app.dto.ApiResponse;
+import com.app.dto.CreateMatchRequest;
+import com.app.dto.MatchResponse;
+import com.app.model.MatchStage;
+import com.app.model.MatchStatus;
 import com.app.service.MatchService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/api/matches")
+@RequestMapping("/api/admin/matches")
+@PreAuthorize("hasRole('ADMIN')")
 public class MatchController {
 
     private final MatchService matchService;
@@ -19,8 +35,33 @@ public class MatchController {
         this.matchService = matchService;
     }
 
-    @GetMapping
-    public List<MatchDTO> getAllMatches() {
-        return matchService.getAllMatches();
+    @PostMapping("/")
+    public ResponseEntity<ApiResponse<MatchResponse>> createMatch(@Valid @RequestBody CreateMatchRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(matchService.createMatch(request)));
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<List<MatchResponse>>> getAllMatches(
+            @RequestParam(required = false) MatchStage stage,
+            @RequestParam(required = false) MatchStatus status) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getAllMatches(stage, status)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<MatchResponse>> getMatchById(@PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getMatchById(id)));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<MatchResponse>> updateMatch(@PathVariable String id,
+            @Valid @RequestBody CreateMatchRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.updateMatch(id, request)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteMatch(@PathVariable String id) {
+        matchService.deleteMatch(id);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
