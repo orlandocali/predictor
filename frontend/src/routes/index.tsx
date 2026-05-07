@@ -12,7 +12,6 @@ import LoginPage from '@/features/auth/LoginPage';
 import AdminRoute from '@/routes/AdminRoute';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import MatchesPage from '@/features/matches/pages/MatchesPage';
-import MatchManagementPage from '@/features/admin/pages/MatchManagementPage';
 
 export default function Routes() {
   return (
@@ -34,7 +33,6 @@ export default function Routes() {
         <Route element={<AdminRoute />}>
           <Route path="admin" element={<MainLayout />}>
             <Route index element={<AdminDashboardPage />} />
-            <Route path="matches" element={<MatchManagementPage />} />
           </Route>
         </Route>
       </Route>
