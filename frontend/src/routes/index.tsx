@@ -12,6 +12,7 @@ import LoginPage from '@/features/auth/LoginPage';
 import AdminRoute from '@/routes/AdminRoute';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 import MatchesPage from '@/features/matches/pages/MatchesPage';
+import MatchDetailPage from '@/features/matches/pages/MatchDetailPage';
 
 export default function Routes() {
   return (
@@ -25,6 +26,7 @@ export default function Routes() {
           <Route index element={<DashboardPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="matches" element={<MatchesPage />} />
+          <Route path="matches/:id" element={<MatchDetailPage />} />
           <Route
             path="*"
             element={<div className="p-8 text-center">404 Not Found</div>}

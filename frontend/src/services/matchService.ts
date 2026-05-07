@@ -16,4 +16,7 @@ export const matchService = {
 
   getGroupedMatches: (): Promise<GroupedStage[]> =>
     apiGet<GroupedStage[]>('/api/matches/grouped'),
+
+  getMatchById: (id: string): Promise<MatchResponse> =>
+    apiGet<MatchResponse>('/api/matches/' + id),
 };
