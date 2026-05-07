@@ -6,7 +6,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth/useAuth';
 
-export default function ProtectedRoute() {
+interface ProtectedRouteProps {}
+
+export default function ProtectedRoute(_props: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   // While initial /me rehydration is in flight, show a neutral loading state.

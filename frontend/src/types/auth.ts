@@ -18,11 +18,13 @@ export interface LoginRequest {
   password: string;
 }
 
+export type UserRole = 'USER' | 'ADMIN';
+
 /** Shape of the user returned by the backend (no email field — backend has none) */
 export interface UserResponse {
   id: string;
   username: string;
-  role: 'USER' | 'ADMIN';
+  role: UserRole;
   active: boolean;
   createdAt: string;
   updatedAt: string;

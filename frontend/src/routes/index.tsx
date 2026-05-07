@@ -7,7 +7,9 @@
 import { Routes as RouterRoutes, Route } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import DashboardPage from '@/pages/DashboardPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import LoginPage from '@/features/auth/LoginPage';
+import AdminRoute from '@/routes/AdminRoute';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 
 export default function Routes() {
@@ -25,6 +27,11 @@ export default function Routes() {
             path="*"
             element={<div className="p-8 text-center">404 Not Found</div>}
           />
+        </Route>
+        <Route element={<AdminRoute />}>
+          <Route path="admin" element={<MainLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+          </Route>
         </Route>
       </Route>
     </RouterRoutes>
