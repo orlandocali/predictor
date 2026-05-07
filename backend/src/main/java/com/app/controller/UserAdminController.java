@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/users")
+@RequestMapping("/api/v1/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class UserAdminController {

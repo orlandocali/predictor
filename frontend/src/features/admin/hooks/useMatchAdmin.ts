@@ -59,7 +59,7 @@ export function useAdminMatches(filters?: MatchFilters) {
 }
 
 // ---------------------------------------------------------------------------
-// useCreateMatch — POST /api/admin/matches
+// useCreateMatch — POST /api/v1/admin/matches
 // No optimistic update (server assigns id + timestamps).
 // On success: invalidate all match queries.
 // ---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ export function useCreateMatch() {
 }
 
 // ---------------------------------------------------------------------------
-// useUpdateMatchStatus — PATCH /api/admin/matches/{id}/status
+// useUpdateMatchStatus — PATCH /api/v1/admin/matches/{id}/status
 // Optimistic update: immediately reflect the new status in the admin cache.
 // Rolls back on error; re-syncs on settled.
 // ---------------------------------------------------------------------------

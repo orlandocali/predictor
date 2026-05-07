@@ -32,7 +32,7 @@ Avoid:
 
 ## ✅ Completed
 
-### Foundation
+### Foundation (Phase 1)
 
 * Monorepo structure
 * Docker Compose setup
@@ -47,9 +47,39 @@ Avoid:
 * Initial folder structure
 * Health endpoint integration
 
+### Authentication & Authorization (Phase 2)
+
+* JWT token generation and validation
+* Spring Security configuration with role guards
+* User entity and MongoDB repository
+* Admin seed via DataInitializer
+* Login, refresh, logout, /me endpoints
+* React login page with form validation
+* AuthContext + useAuth hook
+* ProtectedRoute and AdminRoute guards
+* Token persistence and logout flow
+
+### Match Management (Phase 3)
+
+* Match entity, DTOs, repository, and service
+* Admin match CRUD (create, list, get, update, delete)
+* Match status lifecycle (SCHEDULED → LOCKED → FINISHED → SCORED)
+* User-facing match endpoints (list, grouped, detail)
+* Match grouping by stage and group name
+* Remote match sync from external World Cup API
+* Frontend match list page, match detail page
+* Match cards, status badges, stage group cards
+* Admin match management page with create/edit form
+
 ---
 
-# Phase 2 — Authentication & Authorization
+# Phase 4 — Predictions (Current)
+
+> Next phase.
+
+---
+
+# Phase 2 — Authentication & Authorization (Reference)
 
 ## Goal
 
@@ -150,12 +180,11 @@ Support:
 * FINISHED
 * SCORED
 
-### 3.4 Remote Match Sync (Optional V1.5)
+### 3.4 Remote Match Sync (✅ Implemented)
 
-* External FIFA API integration
-* Dynamic match updates
-
-This is NOT required for MVP.
+* External World Cup API integration via `POST /api/admin/matches/sync`
+* Dynamic match import and update
+* Admin-triggered sync via `SyncMatchController`
 
 ---
 

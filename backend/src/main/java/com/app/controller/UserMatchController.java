@@ -19,7 +19,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/matches")
+@RequestMapping("/api/v1/matches")
 @RequiredArgsConstructor
 public class UserMatchController {
 

@@ -9,8 +9,10 @@ This document defines the REST API structure for the application.
 Base URL:
 
 ```text
-/api
+/api/v1
 ```
+
+> Exception: `/api/health` is intentionally unversioned (standard for health checks).
 
 Authentication:
 
@@ -31,7 +33,7 @@ Response format:
 
 # Authentication API
 
-## POST /api/auth/login
+## POST /api/v1/auth/login
 
 Authenticate user.
 
@@ -49,6 +51,7 @@ Authenticate user.
 ```json
 {
   "token": "jwt-token",
+  "refreshToken": "refresh-token",
   "user": {
     "id": "123",
     "username": "orlando",
@@ -59,9 +62,37 @@ Authenticate user.
 
 ---
 
-## GET /api/auth/me
+## POST /api/v1/auth/refresh
 
-Returns authenticated user profile.
+Exchange a valid refresh token for a new access token.
+
+### Request
+
+```json
+{
+  "refreshToken": "refresh-token"
+}
+```
+
+---
+
+## POST /api/v1/auth/logout
+
+Invalidate the provided refresh token.
+
+### Request
+
+```json
+{
+  "refreshToken": "refresh-token"
+}
+```
+
+---
+
+## GET /api/v1/auth/me
+
+Returns the authenticated user profile. Requires valid JWT.
 
 ---
 
@@ -69,7 +100,7 @@ Returns authenticated user profile.
 
 ## GET /api/health
 
-Basic health check endpoint.
+Basic health check endpoint. Intentionally unversioned.
 
 ### Response
 
@@ -81,11 +112,11 @@ Basic health check endpoint.
 
 ---
 
-# Matches API
+# Matches API (User-facing)
 
-## GET /api/matches
+## GET /api/v1/matches
 
-Returns all matches.
+Returns all matches visible to authenticated users.
 
 ### Query Parameters
 
@@ -93,22 +124,18 @@ Returns all matches.
 | --------- | ---------------- |
 | stage     | Filter by stage  |
 | status    | Filter by status |
-| group     | Filter by group  |
 
 ---
 
-## GET /api/matches/{id}
+## GET /api/v1/matches/{id}
 
 Returns match details.
 
 ---
 
-## GET /api/matches/grouped
+## GET /api/v1/matches/grouped
 
-Returns matches grouped by:
-
-* group stage
-* knockout stage
+Returns matches grouped by stage and group name.
 
 Used for tournament view pages.
 
@@ -116,19 +143,21 @@ Used for tournament view pages.
 
 # Predictions API
 
-## GET /api/predictions/me
+> Phase 4 — Not yet implemented.
+
+## GET /api/v1/predictions/me
 
 Returns logged user predictions.
 
 ---
 
-## GET /api/predictions/match/{matchId}
+## GET /api/v1/predictions/match/{matchId}
 
 Returns current user prediction for a match.
 
 ---
 
-## POST /api/predictions
+## POST /api/v1/predictions
 
 Creates prediction.
 
@@ -145,7 +174,7 @@ Creates prediction.
 
 ---
 
-## PUT /api/predictions/{id}
+## PUT /api/v1/predictions/{id}
 
 Updates prediction.
 
@@ -155,17 +184,11 @@ Validation:
 
 ---
 
-## DELETE /api/predictions/{id}
-
-Optional endpoint.
-
-Can be omitted in v1.
-
----
-
 # Rankings API
 
-## GET /api/rankings
+> Phase 6 — Not yet implemented.
+
+## GET /api/v1/rankings
 
 Returns paginated leaderboard.
 
@@ -189,7 +212,7 @@ Returns paginated leaderboard.
 
 ---
 
-## GET /api/rankings/me
+## GET /api/v1/rankings/me
 
 Returns current logged-in user ranking position.
 
@@ -206,7 +229,7 @@ Returns current logged-in user ranking position.
 
 # Admin API
 
-All endpoints require:
+All admin endpoints require:
 
 ```text
 ROLE_ADMIN
@@ -216,53 +239,86 @@ ROLE_ADMIN
 
 # Admin Users API
 
-## POST /api/admin/users
+## POST /api/v1/admin/users
 
 Create user.
 
 ---
 
-## GET /api/admin/users
+## GET /api/v1/admin/users
 
-List users.
+List all users.
 
 ---
 
-## PUT /api/admin/users/{id}
+## GET /api/v1/admin/users/{id}
+
+Get user by ID.
+
+---
+
+## PUT /api/v1/admin/users/{id}
 
 Update user.
 
 ---
 
-## PATCH /api/admin/users/{id}/active
+## PATCH /api/v1/admin/users/{id}/status
 
-Enable/disable user.
+Toggle user active/inactive status.
 
 ---
 
 # Admin Matches API
 
-## POST /api/admin/matches
+## POST /api/v1/admin/matches/
 
 Create match.
 
 ---
 
-## PUT /api/admin/matches/{id}
+## GET /api/v1/admin/matches/
+
+List all matches (admin view).
+
+### Query Parameters
+
+| Parameter | Description      |
+| --------- | ---------------- |
+| stage     | Filter by stage  |
+| status    | Filter by status |
+
+---
+
+## GET /api/v1/admin/matches/{id}
+
+Get match by ID.
+
+---
+
+## PUT /api/v1/admin/matches/{id}
 
 Update match.
 
 ---
 
-## PATCH /api/admin/matches/{id}/status
+## DELETE /api/v1/admin/matches/{id}
 
-Update match status.
+Delete match.
 
 ---
 
-## POST /api/admin/matches/{id}/result
+## POST /api/v1/admin/matches/sync
 
-Publish official result.
+Sync matches from external World Cup API.
+
+---
+
+## POST /api/v1/admin/matches/{id}/result
+
+> Phase 5 — Not yet implemented.
+
+Publish official result and trigger scoring.
 
 ### Request
 
@@ -276,16 +332,6 @@ Publish official result.
 
 ---
 
-## POST /api/admin/matches/{id}/score
-
-Trigger prediction scoring.
-
-Optional in v1.
-
-Could be automatic after result publishing.
-
----
-
 # Error Handling
 
 Standard error response:
@@ -296,7 +342,7 @@ Standard error response:
   "status": 400,
   "error": "Validation Error",
   "message": "Prediction is locked",
-  "path": "/api/predictions/123"
+  "path": "/api/v1/predictions/123"
 }
 ```
 
@@ -317,10 +363,12 @@ Standard error response:
 
 ## Public Endpoints
 
-| Endpoint        |
-| --------------- |
-| /api/health     |
-| /api/auth/login |
+| Endpoint              |
+| --------------------- |
+| /api/health           |
+| /api/v1/auth/login    |
+| /api/v1/auth/refresh  |
+| /api/v1/auth/logout   |
 
 ---
 
@@ -347,7 +395,6 @@ Potential future endpoints:
 * notifications
 * statistics
 * matchday rankings
-* tournament import
 * websocket live updates
 
 Out of scope for v1.

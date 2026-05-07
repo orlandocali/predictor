@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refetch: refetchMe,
   } = useQuery<UserResponse>({
     queryKey: ['auth', 'me'],
-    queryFn: () => apiGet<UserResponse>('/api/auth/me'),
+    queryFn: () => apiGet<UserResponse>('/api/v1/auth/me'),
     enabled: false, // we trigger manually
     retry: false,   // don't hammer the server on 401
     staleTime: 5 * 60 * 1000, // cache for 5 min
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (credentials: LoginRequest): Promise<void> => {
       const data = await apiPost<LoginRequest, LoginResponse>(
-        '/api/auth/login',
+        '/api/v1/auth/login',
         credentials
       );
 
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async (): Promise<void> => {
     try {
       // Best-effort server-side logout (invalidates refresh token)
-      await apiPost('/api/auth/logout', {});
+      await apiPost('/api/v1/auth/logout', {});
     } catch {
       // Ignore — local cleanup always happens
     } finally {

@@ -105,7 +105,7 @@ SCORED (Points calculated, leaderboard updated)
 - Highlights current user position via `/api/v1/rankings/me`
 
 ## 🌐 API Design Principles
-- Base URL: `/api`
+- Base URL: `/api/v1` (exception: `/api/health` is intentionally unversioned)
 - Response envelope: `{ data: T | null, error: Error | null }`
 - Pagination: `{ content, page, size, totalElements }`
 - Errors: `{ timestamp, status, error, message, path }`

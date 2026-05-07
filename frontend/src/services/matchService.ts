@@ -20,23 +20,23 @@ function buildQuery(filters?: MatchFilters): string {
 
 export const matchService = {
   getMatches: (filters?: MatchFilters): Promise<MatchResponse[]> =>
-    apiGet<MatchResponse[]>(`/api/matches${buildQuery(filters)}`),
+    apiGet<MatchResponse[]>(`/api/v1/matches${buildQuery(filters)}`),
 
   getGroupedMatches: (): Promise<GroupedStage[]> =>
-    apiGet<GroupedStage[]>('/api/matches/grouped'),
+    apiGet<GroupedStage[]>('/api/v1/matches/grouped'),
 
   getMatchById: (id: string): Promise<MatchResponse> =>
-    apiGet<MatchResponse>('/api/matches/' + id),
+    apiGet<MatchResponse>('/api/v1/matches/' + id),
 
   getAdminMatches: (filters?: MatchFilters): Promise<MatchResponse[]> =>
-    apiGet<MatchResponse[]>(`/api/admin/matches/${buildQuery(filters)}`),
+    apiGet<MatchResponse[]>(`/api/v1/admin/matches/${buildQuery(filters)}`),
 
   createMatch: (data: Record<string, unknown>): Promise<MatchResponse> =>
-    apiPost<Record<string, unknown>, MatchResponse>('/api/admin/matches/', data),
+    apiPost<Record<string, unknown>, MatchResponse>('/api/v1/admin/matches/', data),
 
   syncMatches: (): Promise<SyncResult> =>
-    apiPost<Record<string, never>, SyncResult>('/api/admin/matches/sync', {}),
+    apiPost<Record<string, never>, SyncResult>('/api/v1/admin/matches/sync', {}),
 
   updateMatchStatus: (id: string, data: { status: MatchResponse['status'] }): Promise<MatchResponse> =>
-    apiPatch<{ status: MatchResponse['status'] }, MatchResponse>(`/api/admin/matches/${id}/status`, data),
+    apiPatch<{ status: MatchResponse['status'] }, MatchResponse>(`/api/v1/admin/matches/${id}/status`, data),
 };

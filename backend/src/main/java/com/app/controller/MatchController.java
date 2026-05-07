@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/matches")
+@RequestMapping("/api/v1/admin/matches")
 @PreAuthorize("hasRole('ADMIN')")
 public class MatchController {
 

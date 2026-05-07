@@ -52,9 +52,9 @@ Premature optimization should be avoided in v1.
 
 ## 🗺️ Development Phases
 1. **Foundation**: Monorepo, Docker, CORS, auth scaffolding (✅ Done)
-2. **Authentication**: Login, JWT, role guards, admin routes
-3. **Match Management**: CRUD, grouping, status lifecycle, date handling
-4. **Predictions**: Submit, edit, lock logic, history
+2. **Authentication**: Login, JWT, role guards, admin routes (✅ Done)
+3. **Match Management**: CRUD, grouping, status lifecycle, remote sync (✅ Done)
+4. **Predictions**: Submit, edit, lock logic, history (⏳ Next)
 5. **Result Processing**: Admin result entry, scoring engine, leaderboard generation
 6. **Rankings**: Paginated table, tie handling, current user highlight
 7. **Polish**: Loading/empty states, validation, responsive UI, error boundaries

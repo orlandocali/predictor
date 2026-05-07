@@ -53,7 +53,7 @@ api.interceptors.request.use(
 // Response interceptor — handle 401 Unauthorized
 // Skips auth endpoints to prevent infinite redirect loops.
 // ---------------------------------------------------------------------------
-const AUTH_ENDPOINTS = ['/api/auth/login', '/api/auth/me', '/api/auth/refresh'];
+const AUTH_ENDPOINTS = ['/api/v1/auth/login', '/api/v1/auth/me', '/api/v1/auth/refresh'];
 
 api.interceptors.response.use(
   (response) => response,

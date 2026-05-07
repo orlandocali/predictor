@@ -53,20 +53,22 @@ Represents an official FIFA World Cup match.
 
 ## Fields
 
-| Field       | Type          | Description                       |
-| ----------- | ------------- | --------------------------------- |
-| id          | String        | MongoDB ObjectId                  |
-| fifaMatchId | String        | Optional external FIFA identifier |
-| homeTeam    | TeamReference | Home team                         |
-| awayTeam    | TeamReference | Away team                         |
-| stage       | MatchStage    | Tournament stage                  |
-| groupName   | String        | Group name (A-H) when applicable  |
-| kickoffAt   | Instant       | Match kickoff UTC                 |
-| status      | MatchStatus   | Current match state               |
-| venue       | String        | Optional stadium/venue            |
-| result      | MatchResult   | Official result                   |
-| createdAt   | Instant       | Creation timestamp                |
-| updatedAt   | Instant       | Last update timestamp             |
+| Field       | Type        | Description                       |
+| ----------- | ----------- | --------------------------------- |
+| id          | String      | MongoDB ObjectId                  |
+| fifaMatchId | String      | Optional external FIFA identifier |
+| homeTeam    | String      | Home team name                    |
+| awayTeam    | String      | Away team name                    |
+| stage       | MatchStage  | Tournament stage                  |
+| groupName   | String      | Group name (A-H) when applicable  |
+| kickoffAt   | Instant     | Match kickoff UTC                 |
+| status      | MatchStatus | Current match state               |
+| venue       | String      | Optional stadium/venue            |
+| result      | MatchResult | Official result                   |
+| createdAt   | Instant     | Creation timestamp                |
+| updatedAt   | Instant     | Last update timestamp             |
+
+Note: `homeTeam` and `awayTeam` are stored as plain strings in v1. The `TeamReference` sub-document is a future enhancement.
 
 ---
 
@@ -94,26 +96,9 @@ SCORED
 
 ---
 
-# TeamReference
+# TeamReference (Future)
 
-Represents a lightweight team object.
-
-## Fields
-
-| Field   | Type   |
-| ------- | ------ |
-| code    | String |
-| name    | String |
-| flagUrl | String |
-
-Example:
-
-```json
-{
-  "code": "ARG",
-  "name": "Argentina"
-}
-```
+A `TeamReference` sub-document (with `code`, `name`, `flagUrl`) is planned but not yet implemented. In v1, teams are stored as plain strings on the `Match` entity.
 
 ---
 
@@ -123,13 +108,13 @@ Represents the official result of a match.
 
 ## Fields
 
-| Field           | Type     | Description      |
-| --------------- | -------- | ---------------- |
-| homeScore       | Integer  | Final home goals |
-| awayScore       | Integer  | Final away goals |
-| penaltyWinner   | TeamSide | Optional         |
-| resultEnteredAt | Instant  | Timestamp        |
-| enteredByUserId | String   | Admin user ID    |
+| Field         | Type    | Description                           |
+| ------------- | ------- | ------------------------------------- |
+| homeScore     | Integer | Final home goals                      |
+| awayScore     | Integer | Final away goals                      |
+| penaltyWinner | String  | Optional — "HOME" or "AWAY"           |
+
+Note: `resultEnteredAt` and `enteredByUserId` audit fields are planned for a future audit-log enhancement.
 
 ---
 
@@ -139,6 +124,23 @@ Represents the official result of a match.
 HOME
 AWAY
 ```
+
+---
+
+# RefreshToken
+
+Represents a persisted refresh token used in the JWT authentication flow.
+
+## Fields
+
+| Field     | Type    | Description                       |
+| --------- | ------- | --------------------------------- |
+| id        | String  | MongoDB ObjectId                  |
+| token     | String  | Opaque refresh token value        |
+| userId    | String  | Owning user reference             |
+| expiresAt | Instant | Expiry timestamp (7-day TTL)      |
+
+Stored in the `refresh_tokens` collection.
 
 ---
 
@@ -267,11 +269,12 @@ Frontend validation is optional UX support only.
 
 # MongoDB Collection Suggestions
 
-| Collection  | Purpose          |
-| ----------- | ---------------- |
-| users       | User accounts    |
-| matches     | Match data       |
-| predictions | User predictions |
+| Collection     | Purpose                        |
+| -------------- | ------------------------------ |
+| users          | User accounts                  |
+| matches        | Match data                     |
+| predictions    | User predictions               |
+| refresh_tokens | Persisted JWT refresh tokens   |
 
 ---
 
