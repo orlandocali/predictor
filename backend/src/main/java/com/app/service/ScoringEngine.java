@@ -2,6 +2,7 @@ package com.app.service;
 
 import com.app.dto.MatchResponse;
 import com.app.dto.MatchResultRequest;
+import com.app.dto.ScoringResult;
 import com.app.exception.ResourceNotFoundException;
 import com.app.mapper.MatchMapper;
 import com.app.model.Match;
@@ -14,6 +15,7 @@ import com.app.repository.PredictionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -24,15 +26,18 @@ public class ScoringEngine {
     private final PredictionRepository predictionRepository;
     private final MatchService matchService;
     private final MatchMapper matchMapper;
+    private final RankingService rankingService;
 
     public ScoringEngine(MatchRepository matchRepository,
                          PredictionRepository predictionRepository,
                          MatchService matchService,
-                         MatchMapper matchMapper) {
+                         MatchMapper matchMapper,
+                         RankingService rankingService) {
         this.matchRepository = matchRepository;
         this.predictionRepository = predictionRepository;
         this.matchService = matchService;
         this.matchMapper = matchMapper;
+        this.rankingService = rankingService;
     }
 
     public MatchResponse submitResult(String matchId, MatchResultRequest request) {
@@ -66,7 +71,8 @@ public class ScoringEngine {
                 result.getHomeScore(), result.getAwayScore(),
                 result.getPenaltyWinner() != null ? " (pen: " + result.getPenaltyWinner() + ")" : "");
 
-        scorePredictions(match, result);
+        List<ScoringResult> scoringResults = scorePredictions(match, result);
+        rankingService.updateRankingsForMatch(matchId, scoringResults);
 
         matchService.updateMatchStatus(matchId, MatchStatus.SCORED);
         log.info("Match '{}' transitioned to SCORED", matchId);
@@ -76,33 +82,63 @@ public class ScoringEngine {
         return matchMapper.toResponse(scored);
     }
 
-    private void scorePredictions(Match match, MatchResult result) {
+    private List<ScoringResult> scorePredictions(Match match, MatchResult result) {
         List<Prediction> predictions = predictionRepository.findByMatchId(match.getId());
         if (predictions.isEmpty()) {
             log.info("No predictions found for match '{}', skipping scoring", match.getId());
-            return;
+            return List.of();
         }
 
         boolean isKnockout = match.getStage() != MatchStage.GROUP_STAGE;
+        List<ScoringResult> scoringResults = new ArrayList<>();
+
         for (Prediction prediction : predictions) {
-            int points = calculatePoints(prediction, result, match, isKnockout);
-            prediction.setPointsEarned(points);
+            ScoringResult scoringResult = calculatePoints(prediction, result, match, isKnockout);
+            prediction.setPointsEarned(scoringResult.getPointsEarned());
+            scoringResults.add(scoringResult);
         }
 
         predictionRepository.saveAll(predictions);
         log.info("Scored {} predictions for match '{}'", predictions.size(), match.getId());
+        return scoringResults;
     }
 
-    private int calculatePoints(Prediction p, MatchResult r, Match match, boolean isKnockout) {
+    private ScoringResult calculatePoints(Prediction p, MatchResult r, Match match, boolean isKnockout) {
         int ph = p.getPredictedHomeScore() != null ? p.getPredictedHomeScore() : 0;
         int pa = p.getPredictedAwayScore() != null ? p.getPredictedAwayScore() : 0;
         int ah = r.getHomeScore();
         int aa = r.getAwayScore();
 
+        String predictedPenaltyWinner = p.getPredictedPenaltyWinner();
+        String actualPenaltyWinner = r.getPenaltyWinner();
+
+        int points;
+        ScoringResult.PointsBreakdown breakdown;
+
         if (!isKnockout) {
-            if (ph == ah && pa == aa) return 3;
-            if (Integer.signum(ph - pa) == Integer.signum(ah - aa)) return 1;
-            return 0;
+            if (ph == ah && pa == aa) {
+                points = 3;
+                breakdown = ScoringResult.PointsBreakdown.EXACT_SCORE;
+            } else if (Integer.signum(ph - pa) == Integer.signum(ah - aa)) {
+                points = 1;
+                breakdown = ScoringResult.PointsBreakdown.CORRECT_OUTCOME;
+            } else {
+                points = 0;
+                breakdown = ScoringResult.PointsBreakdown.INCORRECT;
+            }
+
+            return ScoringResult.builder()
+                    .matchId(match.getId())
+                    .userId(p.getUserId())
+                    .predictedHomeScore(p.getPredictedHomeScore())
+                    .predictedAwayScore(p.getPredictedAwayScore())
+                    .actualHomeScore(ah)
+                    .actualAwayScore(aa)
+                    .predictedPenaltyWinner(predictedPenaltyWinner)
+                    .actualPenaltyWinner(actualPenaltyWinner)
+                    .pointsEarned(points)
+                    .breakdown(breakdown)
+                    .build();
         }
 
         // Knockout: determine actual winner
@@ -112,7 +148,7 @@ public class ScoringEngine {
         } else if (aa > ah) {
             actualWinner = match.getAwayTeam();
         } else {
-            actualWinner = r.getPenaltyWinner();
+            actualWinner = actualPenaltyWinner;
         }
 
         // Knockout: determine predicted winner
@@ -122,17 +158,35 @@ public class ScoringEngine {
         } else if (pa > ph) {
             predictedWinner = match.getAwayTeam();
         } else {
-            predictedWinner = p.getPredictedPenaltyWinner();
+            predictedWinner = predictedPenaltyWinner;
         }
 
         // 3pts: exact score AND correct penalty winner (or no penalty involved)
         boolean exactScore = (ph == ah && pa == aa);
-        boolean penaltyCorrect = (r.getPenaltyWinner() == null)
-                || r.getPenaltyWinner().equals(p.getPredictedPenaltyWinner());
-        if (exactScore && penaltyCorrect) return 3;
+        boolean penaltyCorrect = (actualPenaltyWinner == null)
+                || actualPenaltyWinner.equals(predictedPenaltyWinner);
+        if (exactScore && penaltyCorrect) {
+            points = 3;
+            breakdown = ScoringResult.PointsBreakdown.EXACT_SCORE;
+        } else if (actualWinner != null && actualWinner.equals(predictedWinner)) {
+            points = 1;
+            breakdown = ScoringResult.PointsBreakdown.CORRECT_OUTCOME;
+        } else {
+            points = 0;
+            breakdown = ScoringResult.PointsBreakdown.INCORRECT;
+        }
 
-        // 1pt: correct match winner
-        if (actualWinner != null && actualWinner.equals(predictedWinner)) return 1;
-        return 0;
+        return ScoringResult.builder()
+                .matchId(match.getId())
+                .userId(p.getUserId())
+                .predictedHomeScore(p.getPredictedHomeScore())
+                .predictedAwayScore(p.getPredictedAwayScore())
+                .actualHomeScore(ah)
+                .actualAwayScore(aa)
+                .predictedPenaltyWinner(predictedPenaltyWinner)
+                .actualPenaltyWinner(actualPenaltyWinner)
+                .pointsEarned(points)
+                .breakdown(breakdown)
+                .build();
     }
 }
