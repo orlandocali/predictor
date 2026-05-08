@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.app.dto.PredictionRequest;
 import com.app.dto.PredictionResponse;
+import com.app.dto.UpdatePredictionRequest;
 import com.app.exception.PredictionLockedException;
 import com.app.exception.ResourceNotFoundException;
 import com.app.model.Match;
@@ -95,6 +96,40 @@ public class PredictionService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Prediction not found for user " + userId + " and match " + matchId));
         return toResponse(prediction);
+    }
+
+    public PredictionResponse updatePrediction(String userId, String predictionId, UpdatePredictionRequest request) {
+        Prediction prediction = predictionRepository.findById(predictionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prediction not found: " + predictionId));
+
+        if (!prediction.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Prediction does not belong to this user");
+        }
+
+        if (prediction.isLocked()) {
+            throw new PredictionLockedException("This prediction is locked and cannot be modified");
+        }
+
+        Match match = matchRepository.findById(prediction.getMatchId())
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + prediction.getMatchId()));
+
+        if (match.getStatus() == MatchStatus.LOCKED
+                || match.getStatus() == MatchStatus.FINISHED
+                || match.getStatus() == MatchStatus.SCORED) {
+            throw new PredictionLockedException("Predictions are closed for this match");
+        }
+
+        Instant lockDeadline = match.getKickoffAt().minus(12, ChronoUnit.HOURS);
+        if (Instant.now().isAfter(lockDeadline)) {
+            throw new PredictionLockedException("Prediction window has closed (12 hours before kickoff)");
+        }
+
+        prediction.setPredictedHomeScore(request.getPredictedHomeScore());
+        prediction.setPredictedAwayScore(request.getPredictedAwayScore());
+        prediction.setPredictedPenaltyWinner(request.getPredictedPenaltyWinner());
+
+        log.info("Updating prediction '{}' for user '{}'", predictionId, userId);
+        return toResponse(predictionRepository.save(prediction));
     }
 
     public void lockPredictionsForMatch(String matchId) {

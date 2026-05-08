@@ -21,13 +21,17 @@ export interface MatchResult {
 
 export interface MatchResponse {
   id: string;
+  fifaMatchId?: string;
   homeTeam: string;
   awayTeam: string;
-  kickoffAt: string; // ISO-8601 UTC instant
   stage: MatchStage;
-  group?: string; // e.g. "A", "B" — only for GROUP_STAGE
+  group?: string;
+  kickoffAt: string; // ISO-8601 UTC instant
   status: MatchStatus;
+  venue?: string;
   result?: MatchResult;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface MatchFilters {

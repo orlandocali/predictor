@@ -19,6 +19,7 @@ public class UserResponse {
     private String role;
     private boolean active;
     private Instant createdAt;
+    private Instant updatedAt;
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
@@ -28,6 +29,7 @@ public class UserResponse {
                 .role(user.getRole().name())
                 .active(user.isActive())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

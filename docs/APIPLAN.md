@@ -50,7 +50,7 @@ Authenticate user.
 
 ```json
 {
-  "token": "jwt-token",
+  "accessToken": "jwt-token",
   "refreshToken": "refresh-token",
   "user": {
     "id": "123",
@@ -120,10 +120,11 @@ Returns all matches visible to authenticated users.
 
 ### Query Parameters
 
-| Parameter | Description      |
-| --------- | ---------------- |
-| stage     | Filter by stage  |
-| status    | Filter by status |
+| Parameter | Description           |
+| --------- | --------------------- |
+| stage     | Filter by stage       |
+| status    | Filter by status      |
+| groupName | Filter by group (A-H) |
 
 ---
 
@@ -143,23 +144,21 @@ Used for tournament view pages.
 
 # Predictions API
 
-> Phase 4 — Not yet implemented.
+## GET /api/v1/predictions
 
-## GET /api/v1/predictions/me
-
-Returns logged user predictions.
+Returns the authenticated user's predictions.
 
 ---
 
 ## GET /api/v1/predictions/match/{matchId}
 
-Returns current user prediction for a match.
+Returns the authenticated user's prediction for a specific match.
 
 ---
 
 ## POST /api/v1/predictions
 
-Creates prediction.
+Creates or updates a prediction (upsert by userId + matchId).
 
 ### Request
 
@@ -172,41 +171,58 @@ Creates prediction.
 }
 ```
 
+Validation:
+
+* match must exist and be SCHEDULED
+* kickoff must be more than 12 hours away
+* scores must be >= 0
+* knockout matches require `predictedPenaltyWinner`
+
 ---
 
 ## PUT /api/v1/predictions/{id}
 
-Updates prediction.
+Updates an existing prediction by ID.
+
+### Request
+
+```json
+{
+  "predictedHomeScore": 2,
+  "predictedAwayScore": 1,
+  "predictedPenaltyWinner": "HOME"
+}
+```
 
 Validation:
 
+* prediction must belong to the authenticated user
 * prediction must not be locked
+* match must still be open (SCHEDULED, within 12h window)
 
 ---
 
 # Rankings API
 
-> Phase 6 — Not yet implemented.
-
 ## GET /api/v1/rankings
 
-Returns paginated leaderboard.
+Returns paginated leaderboard sorted by totalPoints DESC.
 
 ### Query Parameters
 
-| Parameter | Description |
-| --------- | ----------- |
-| page      | Page number |
-| size      | Page size   |
+| Parameter | Description                   |
+| --------- | ----------------------------- |
+| page      | Page number (default 0)       |
+| size      | Page size (default 20, max 100) |
 
 ### Response
 
 ```json
 {
   "content": [],
-  "page": 0,
-  "size": 20,
-  "totalElements": 100
+  "totalElements": 100,
+  "totalPages": 5,
+  "number": 0
 }
 ```
 
@@ -214,14 +230,15 @@ Returns paginated leaderboard.
 
 ## GET /api/v1/rankings/me
 
-Returns current logged-in user ranking position.
+Returns the authenticated user's ranking position and stats.
 
 ### Response
 
 ```json
 {
-  "position": 12,
-  "totalPoints": 18
+  "rank": 12,
+  "totalPoints": 18,
+  "username": "orlando"
 }
 ```
 
@@ -247,7 +264,14 @@ Create user.
 
 ## GET /api/v1/admin/users
 
-List all users.
+List all users (paginated).
+
+### Query Parameters
+
+| Parameter | Description             |
+| --------- | ----------------------- |
+| page      | Page number (default 0) |
+| size      | Page size (default 20)  |
 
 ---
 
@@ -283,10 +307,11 @@ List all matches (admin view).
 
 ### Query Parameters
 
-| Parameter | Description      |
-| --------- | ---------------- |
-| stage     | Filter by stage  |
-| status    | Filter by status |
+| Parameter | Description           |
+| --------- | --------------------- |
+| stage     | Filter by stage       |
+| status    | Filter by status      |
+| groupName | Filter by group (A-H) |
 
 ---
 
@@ -302,6 +327,18 @@ Update match.
 
 ---
 
+## PATCH /api/v1/admin/matches/{id}/status
+
+Transition match status. Valid transitions: SCHEDULED → LOCKED → FINISHED → SCORED.
+
+### Request
+
+```json
+{ "status": "LOCKED" }
+```
+
+---
+
 ## DELETE /api/v1/admin/matches/{id}
 
 Delete match.
@@ -310,15 +347,13 @@ Delete match.
 
 ## POST /api/v1/admin/matches/sync
 
-Sync matches from external World Cup API.
+Sync matches from external World Cup API (upsert by fifaMatchId).
 
 ---
 
 ## POST /api/v1/admin/matches/{id}/result
 
-> Phase 5 — Not yet implemented.
-
-Publish official result and trigger scoring.
+Submit official result for a group-stage match. Triggers scoring and transitions match to SCORED.
 
 ### Request
 
@@ -326,9 +361,62 @@ Publish official result and trigger scoring.
 {
   "homeScore": 2,
   "awayScore": 1,
-  "penaltyWinner": null
+  "penaltyWinner": null,
+  "extraTimeHomeScore": null,
+  "extraTimeAwayScore": null
 }
 ```
+
+---
+
+## POST /api/v1/admin/matches/{id}/knockout-result
+
+Submit official result for a knockout-stage match. Includes full validation of qualifying team and penalty winner consistency.
+
+### Request
+
+```json
+{
+  "homeScore": 1,
+  "awayScore": 1,
+  "qualifyingTeam": "Argentina",
+  "penaltyWinner": "Argentina",
+  "extraTimeHomeScore": 1,
+  "extraTimeAwayScore": 1
+}
+```
+
+---
+
+# Admin Scoring API
+
+## POST /api/v1/admin/scores/recalculate/{matchId}
+
+Re-score all predictions for a specific SCORED match and rebuild the leaderboard.
+
+---
+
+## POST /api/v1/admin/scores/recalculate/all
+
+Re-score all predictions for every SCORED match and rebuild the full leaderboard.
+
+---
+
+## GET /api/v1/admin/rankings
+
+Returns the full leaderboard (admin view, no pagination).
+
+---
+
+## GET /api/v1/admin/rankings/top/{n}
+
+Returns the top N ranked users.
+
+---
+
+## GET /api/v1/admin/rankings/stats
+
+Returns aggregate ranking statistics (total users, total predictions, etc.).
 
 ---
 
@@ -346,6 +434,15 @@ Standard error response:
 }
 ```
 
+| HTTP Status | Meaning                                   |
+| ----------- | ----------------------------------------- |
+| 400         | Validation error / bad request            |
+| 401         | Unauthenticated (invalid or missing JWT)  |
+| 403         | Forbidden (insufficient role)             |
+| 404         | Resource not found                        |
+| 409         | Conflict (prediction locked)              |
+| 500         | Internal server error                     |
+
 ---
 
 # Validation Rules
@@ -353,9 +450,18 @@ Standard error response:
 ## Prediction Validation
 
 * match must exist
-* prediction must be unique per user
+* prediction must be unique per user (upsert on POST, targeted update on PUT)
 * prediction must not be locked
 * scores must be >= 0
+* knockout matches require penalty winner
+
+## Match Status Transitions
+
+Valid transitions only:
+
+```
+SCHEDULED → LOCKED → FINISHED → SCORED
+```
 
 ---
 
@@ -374,17 +480,13 @@ Standard error response:
 
 ## Authenticated Endpoints
 
-Require valid JWT.
+All other `/api/v1/` endpoints require a valid JWT Bearer token.
 
 ---
 
 ## Admin Endpoints
 
-Require:
-
-```text
-ROLE_ADMIN
-```
+Require `ROLE_ADMIN`. Prefix: `/api/v1/admin/`.
 
 ---
 
@@ -393,7 +495,7 @@ ROLE_ADMIN
 Potential future endpoints:
 
 * notifications
-* statistics
+* statistics dashboards
 * matchday rankings
 * websocket live updates
 

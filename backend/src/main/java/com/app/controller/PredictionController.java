@@ -5,6 +5,7 @@ import java.util.List;
 import com.app.dto.ApiResponse;
 import com.app.dto.PredictionRequest;
 import com.app.dto.PredictionResponse;
+import com.app.dto.UpdatePredictionRequest;
 import com.app.exception.ResourceNotFoundException;
 import com.app.repository.UserRepository;
 import com.app.service.PredictionService;
@@ -17,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +68,16 @@ public class PredictionController {
 
         PredictionResponse response = predictionService.getPredictionByUserAndMatch(userId, matchId);
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PredictionResponse>> updatePrediction(
+            @PathVariable String id,
+            @Valid @RequestBody UpdatePredictionRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+        String userId = resolveUserId(principal.getUsername());
+        log.debug("User '{}' updating prediction '{}'", principal.getUsername(), id);
+        return ResponseEntity.ok(ApiResponse.success(predictionService.updatePrediction(userId, id, request)));
     }
 
     private String resolveUserId(String username) {
