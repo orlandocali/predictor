@@ -29,9 +29,19 @@ public class MatchLockScheduler {
 
         if (toLock.isEmpty()) return;
 
-        toLock.forEach(m -> m.setStatus(MatchStatus.LOCKED));
-        matchRepository.saveAll(toLock);
+        int locked = 0;
+        for (Match m : toLock) {
+            try {
+                m.setStatus(MatchStatus.LOCKED);
+                matchRepository.save(m);
+                locked++;
+            } catch (Exception e) {
+                log.error("Failed to auto-lock match '{}': {}", m.getId(), e.getMessage());
+            }
+        }
 
-        log.info("Auto-locked {} match(es) within 12h of kickoff", toLock.size());
+        if (locked > 0) {
+            log.info("Auto-locked {}/{} match(es) within 12h of kickoff", locked, toLock.size());
+        }
     }
 }
