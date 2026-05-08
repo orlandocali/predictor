@@ -6,10 +6,18 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
     port: 5173,
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+    hmr: {
+      port: 5173,
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8081',
+        target: process.env.BACKEND_URL || 'http://localhost:8081',
         changeOrigin: true,
       },
     },

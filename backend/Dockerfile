@@ -1,18 +1,14 @@
-# Stage 1: Build Spring Boot app
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+FROM maven:3.9-eclipse-temurin-17
 WORKDIR /app
 
+# Copy the entrypoint watcher script
+COPY dev-entrypoint.sh /usr/local/bin/dev-entrypoint.sh
+RUN chmod +x /usr/local/bin/dev-entrypoint.sh
+
+# Pre-download dependencies using the host pom.xml
+# (pom.xml is also mounted at runtime, this is just for layer caching)
 COPY pom.xml ./
 RUN mvn dependency:go-offline -B
 
-COPY src/ ./src/
-RUN mvn package -DskipTests -B
-
-# Stage 2: Run with JRE
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
-
-COPY --from=builder /app/target/*.jar app.jar
-
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/usr/local/bin/dev-entrypoint.sh"]
