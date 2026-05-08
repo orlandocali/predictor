@@ -71,7 +71,7 @@ function MatchPredictionCard({ match }: MatchPredictionCardProps) {
           match={match}
           existingPrediction={existingPrediction}
           isLocked={locked}
-          isSubmitting={mutation.isPending}
+          isPending={mutation.isPending}
           onSubmit={handleSubmit}
         />
 

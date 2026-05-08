@@ -14,6 +14,7 @@ import ProtectedRoute from '@/routes/ProtectedRoute';
 import MatchesPage from '@/features/matches/pages/MatchesPage';
 import MatchDetailPage from '@/features/matches/pages/MatchDetailPage';
 import PredictionPage from '@/features/predictions/pages/PredictionPage';
+import PredictionHistoryPage from '@/features/predictions/pages/PredictionHistoryPage';
 import { MatchManagementPage, UserManagementPage } from '@/features/admin';
 
 export default function Routes() {
@@ -30,6 +31,7 @@ export default function Routes() {
           <Route path="matches" element={<MatchesPage />} />
           <Route path="matches/:id" element={<MatchDetailPage />} />
           <Route path="predictions" element={<PredictionPage />} />
+          <Route path="predictions/history" element={<PredictionHistoryPage />} />
           <Route
             path="*"
             element={<div className="p-8 text-center">404 Not Found</div>}

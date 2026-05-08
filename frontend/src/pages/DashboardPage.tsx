@@ -58,6 +58,19 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* My Predictions */}
+        <Card className="hover:bg-muted/30 transition-colors">
+          <CardHeader>
+            <CardTitle>My Predictions</CardTitle>
+            <CardDescription>Submit and track your match score predictions.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center pt-2">
+            <Link to="/predictions">
+              <Button variant="outline">My Predictions</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
         {/* Rankings */}
         <Card className="hover:bg-muted/30 transition-colors">
           <CardHeader>

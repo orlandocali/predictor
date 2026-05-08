@@ -37,6 +37,16 @@ export default function Navbar() {
                 Matches
               </NavLink>
               <NavLink
+                to="/predictions"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'text-primary font-semibold text-sm'
+                    : 'text-muted-foreground hover:text-foreground text-sm transition-colors'
+                }
+              >
+                Predictions
+              </NavLink>
+              <NavLink
                 to="/rankings"
                 className={({ isActive }) =>
                   isActive

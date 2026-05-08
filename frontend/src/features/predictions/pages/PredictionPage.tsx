@@ -1,7 +1,8 @@
 import { Loader2, AlertCircle } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { useGroupedMatches } from '@/features/matches/hooks/useGroupedMatches';
 import type { MatchStage } from '@/types/match';
-import { MatchPredictionCard } from '../components/MatchPredictionCard';
+import MatchPredictionCard from '../components/MatchPredictionCard';
 
 const STAGE_LABELS: Record<MatchStage, string> = {
   GROUP_STAGE: 'Group Stage',
@@ -20,6 +21,34 @@ function PredictionPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">My Predictions</h1>
         <p className="text-sm text-muted-foreground">Submit your score predictions before each match locks</p>
+      </div>
+
+      <div className="flex gap-1 border-b">
+        <NavLink
+          to="/predictions"
+          end
+          className={({ isActive }) =>
+            `px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              isActive
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          Submit Predictions
+        </NavLink>
+        <NavLink
+          to="/predictions/history"
+          className={({ isActive }) =>
+            `px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              isActive
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          History
+        </NavLink>
       </div>
 
       {isLoading && (

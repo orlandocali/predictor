@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,11 +35,21 @@ interface PredictionFormProps {
   onSubmit: (data: CreatePredictionRequest) => void;
 }
 
-interface PredictionFormValues {
-  predictedHomeScore: number;
-  predictedAwayScore: number;
-  predictedPenaltyWinner?: string;
-}
+const basePredictionSchema = z.object({
+  predictedHomeScore: z.coerce.number<number>().int().min(0),
+  predictedAwayScore: z.coerce.number<number>().int().min(0),
+  predictedPenaltyWinner: z.string().optional(),
+});
+
+const knockoutPredictionSchema = basePredictionSchema.refine(
+  (values) => Boolean(values.predictedPenaltyWinner),
+  {
+    message: 'Penalty winner is required for knockout matches.',
+    path: ['predictedPenaltyWinner'],
+  }
+);
+
+type PredictionFormValues = z.infer<typeof basePredictionSchema>;
 
 const EMPTY_VALUES: PredictionFormValues = {
   predictedHomeScore: 0,
@@ -57,26 +67,10 @@ export default function PredictionForm({
   const isKnockout = match.stage !== 'GROUP_STAGE';
   const isDisabled = isLocked || isPending;
 
-  const schema = useMemo(
-    () =>
-      z
-        .object({
-          predictedHomeScore: z.coerce.number().int().min(0),
-          predictedAwayScore: z.coerce.number().int().min(0),
-          predictedPenaltyWinner: z.string().optional(),
-        })
-        .refine(
-          (values) => !isKnockout || Boolean(values.predictedPenaltyWinner),
-          {
-            message: 'Penalty winner is required for knockout matches.',
-            path: ['predictedPenaltyWinner'],
-          }
-        ),
-    [isKnockout]
-  );
-
   const form = useForm<PredictionFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(
+      isKnockout ? knockoutPredictionSchema : basePredictionSchema
+    ),
     defaultValues: existingPrediction
       ? {
           predictedHomeScore: existingPrediction.predictedHomeScore,
