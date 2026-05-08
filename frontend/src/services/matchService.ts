@@ -17,6 +17,15 @@ export interface SubmitResultBody {
   extraTimeAwayScore?: number;
 }
 
+export interface KnockoutResultBody {
+  homeScore: number;
+  awayScore: number;
+  qualifyingTeam: string;
+  penaltyWinner?: string;
+  extraTimeHomeScore?: number;
+  extraTimeAwayScore?: number;
+}
+
 function buildQuery(filters?: MatchFilters): string {
   const params = new URLSearchParams();
   if (filters?.stage) params.set('stage', filters.stage);
@@ -55,5 +64,8 @@ export const matchService = {
     apiDelete(`/api/v1/admin/matches/${id}`),
 
   submitResult: (matchId: string, body: SubmitResultBody): Promise<MatchResponse> =>
-    apiPost<SubmitResultBody, MatchResponse>(`/api/admin/matches/${matchId}/result`, body),
+    apiPost<SubmitResultBody, MatchResponse>(`/api/v1/admin/matches/${matchId}/result`, body),
+
+  submitKnockoutResult: (matchId: string, body: KnockoutResultBody): Promise<MatchResponse> =>
+    apiPost<KnockoutResultBody, MatchResponse>(`/api/v1/admin/matches/${matchId}/knockout-result`, body),
 };

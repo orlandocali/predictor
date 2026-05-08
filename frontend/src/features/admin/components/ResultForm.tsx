@@ -57,7 +57,7 @@ interface ResultFormProps {
 // ---------------------------------------------------------------------------
 export default function ResultForm({ match, onSuccess }: ResultFormProps) {
   const isKnockout = isKnockoutStage(match.stage);
-  const mutation = useSubmitResult(match.id);
+  const mutation = useSubmitResult(match);
 
   const form = useForm<ResultFormValues>({
     resolver: zodResolver(makeResultSchema(match.stage)),

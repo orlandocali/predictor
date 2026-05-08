@@ -14,6 +14,9 @@ export interface MatchResult {
   penaltyWinner?: string;
   extraTimeHomeScore?: number;
   extraTimeAwayScore?: number;
+  qualifyingTeam?: string;
+  wentToExtraTime?: boolean;
+  wentToPenalties?: boolean;
 }
 
 export interface MatchResponse {
