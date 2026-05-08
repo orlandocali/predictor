@@ -20,6 +20,7 @@ import ResultEntryPage from '@/features/admin/pages/ResultEntryPage';
 import MatchResultPage from '@/features/results/pages/MatchResultPage';
 import LeaderboardPage from '@/features/rankings/pages/LeaderboardPage';
 import MyRankingPage from '@/features/rankings/pages/MyRankingPage';
+import TournamentViewPage from '@/features/tournament/pages/TournamentViewPage';
 
 export default function Routes() {
   return (
@@ -39,6 +40,7 @@ export default function Routes() {
           <Route path="results/:id" element={<MatchResultPage />} />
           <Route path="rankings" element={<LeaderboardPage />} />
           <Route path="rankings/me" element={<MyRankingPage />} />
+          <Route path="tournament" element={<TournamentViewPage />} />
           <Route
             path="*"
             element={<div className="p-8 text-center">404 Not Found</div>}

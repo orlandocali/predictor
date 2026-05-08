@@ -47,6 +47,7 @@ export default function Navbar() {
               <NavLink to="/matches" className={navLinkClass}>Matches</NavLink>
               <NavLink to="/predictions" className={navLinkClass}>Predictions</NavLink>
               <NavLink to="/rankings" className={navLinkClass}>Rankings</NavLink>
+              <NavLink to="/tournament" className={navLinkClass}>Tournament</NavLink>
               {isAdmin && (
                 <NavLink to="/admin" className={navLinkClass}>Admin</NavLink>
               )}
@@ -124,6 +125,7 @@ export default function Navbar() {
                     { to: '/matches', label: 'Matches' },
                     { to: '/predictions', label: 'Predictions' },
                     { to: '/rankings', label: 'Rankings' },
+                    { to: '/tournament', label: 'Tournament' },
                   ].map(({ to, label }) => (
                     <NavLink
                       key={to}
