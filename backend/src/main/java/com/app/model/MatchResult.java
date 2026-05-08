@@ -16,4 +16,8 @@ public class MatchResult {
     private int awayScore;
 
     private String penaltyWinner;
+
+    private Integer extraTimeHomeScore;
+
+    private Integer extraTimeAwayScore;
 }
