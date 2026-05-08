@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -6,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 import type { MatchResponse, MatchStatus } from '@/types/match';
 import type { CreatePredictionRequest } from '@/types/prediction';
 import { usePredictionByMatch } from '../hooks/usePredictions';
@@ -76,11 +78,14 @@ function MatchPredictionCard({ match }: MatchPredictionCardProps) {
         />
 
         {mutation.isError && (
-          <p className="text-sm text-destructive" role="alert">
-            {isLockedError
-              ? 'Predictions are locked for this match.'
-              : rawErrorMessage}
-          </p>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {isLockedError
+                ? 'Predictions are locked for this match.'
+                : rawErrorMessage}
+            </AlertDescription>
+          </Alert>
         )}
       </CardContent>
     </Card>

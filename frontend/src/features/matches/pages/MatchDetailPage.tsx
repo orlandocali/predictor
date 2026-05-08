@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Calendar, Loader2, Lock, Trophy, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { MatchStage } from '@/types/match';
 import { useMatch } from '../hooks/useMatch';
 import { MatchStatusBadge } from '../components/MatchStatusBadge';
@@ -36,7 +37,7 @@ export default function MatchDetailPage() {
 
   if (isError || data == null) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         <Button variant="ghost" size="sm" asChild>
           <Link
             to="/matches"
@@ -52,10 +53,10 @@ export default function MatchDetailPage() {
           </Link>
         </Button>
 
-        <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">Failed to load match details. Please try again.</p>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Failed to load match details. Please try again.</AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -63,7 +64,7 @@ export default function MatchDetailPage() {
   const kickoffDate = new Date(data.kickoffAt);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6">
       <Button variant="ghost" size="sm" asChild>
         <Link
           to="/matches"

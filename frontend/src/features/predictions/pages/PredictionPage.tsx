@@ -1,5 +1,6 @@
 import { Loader2, AlertCircle } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGroupedMatches } from '@/features/matches/hooks/useGroupedMatches';
 import type { MatchStage } from '@/types/match';
 import MatchPredictionCard from '../components/MatchPredictionCard';
@@ -17,7 +18,7 @@ function PredictionPage() {
   const { data, isLoading, isError } = useGroupedMatches();
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">My Predictions</h1>
         <p className="text-sm text-muted-foreground">Submit your score predictions before each match locks</p>
@@ -58,10 +59,10 @@ function PredictionPage() {
       )}
 
       {isError && (
-        <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">Failed to load matches. Please try again.</p>
-        </div>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Failed to load predictions.</AlertDescription>
+        </Alert>
       )}
 
       {!isLoading && !isError && (

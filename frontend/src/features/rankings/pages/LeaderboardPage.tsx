@@ -237,7 +237,7 @@ export default function LeaderboardPage() {
   const isLastPage = currentPage >= totalPages - 1;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/40">

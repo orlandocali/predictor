@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMutation } from '@tanstack/react-query';
+import { AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { matchService } from '@/services/matchService';
 import type { SyncResult } from '@/services/matchService';
@@ -30,7 +32,7 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
@@ -85,7 +87,12 @@ export default function AdminDashboardPage() {
                 {syncResult.failed} failed
               </p>
             ) : null}
-            {syncError ? <p className="text-xs text-red-600">{syncError}</p> : null}
+            {syncError && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{syncError}</AlertDescription>
+              </Alert>
+            )}
           </CardContent>
         </Card>
         

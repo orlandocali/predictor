@@ -23,6 +23,12 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import MatchForm from '@/features/admin/components/MatchForm';
 import {
   useAdminMatches,
@@ -128,7 +134,7 @@ export default function MatchManagementPage() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -236,38 +242,55 @@ export default function MatchManagementPage() {
                       <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <StatusTransitionButton match={match} />
-                        {match.status === 'FINISHED' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate(`/admin/matches/${match.id}/result`)}
-                            title="Enter result"
-                            className="text-primary"
-                          >
-                            <ClipboardList className="mr-1.5 h-3.5 w-3.5" />
-                            Enter Result
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openEdit(match)}
-                          title="Edit match"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setDeletingMatch(match)}
-                          title="Delete match"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
+                      <TooltipProvider>
+                        <div className="flex items-center justify-end gap-2">
+                          <StatusTransitionButton match={match} />
+                          {match.status === 'FINISHED' && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => navigate(`/admin/matches/${match.id}/result`)}
+                                  title="Enter result"
+                                  className="text-primary"
+                                >
+                                  <ClipboardList className="mr-1.5 h-3.5 w-3.5" />
+                                  Enter Result
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Enter result</TooltipContent>
+                            </Tooltip>
+                          )}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openEdit(match)}
+                                title="Edit match"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit match</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setDeletingMatch(match)}
+                                title="Delete match"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete match</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
                     </TableCell>
                   </TableRow>
                 );

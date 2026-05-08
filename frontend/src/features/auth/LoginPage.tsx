@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Card,
   CardHeader,
@@ -25,6 +26,7 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 
 // ---------------------------------------------------------------------------
@@ -80,12 +82,10 @@ export default function LoginPage() {
         <CardContent>
           {/* Server-level error alert */}
           {serverError !== null && (
-            <div
-              role="alert"
-              className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              {serverError}
-            </div>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{serverError}</AlertDescription>
+            </Alert>
           )}
 
           <Form {...form}>

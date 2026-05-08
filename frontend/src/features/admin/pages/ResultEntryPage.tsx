@@ -4,11 +4,13 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, Lock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Lock, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import ResultForm from '@/features/admin/components/ResultForm';
 import { matchService } from '@/services/matchService';
@@ -42,7 +44,7 @@ const STATUS_CONFIG: Record<
 
 function LoadingSkeleton() {
   return (
-    <div className="max-w-lg mx-auto space-y-4 p-6">
+    <div className="max-w-lg mx-auto space-y-4">
       <Skeleton className="h-8 w-32" />
       <Skeleton className="h-48 w-full rounded-xl" />
     </div>
@@ -86,7 +88,7 @@ function ScoredResult({ match, onBack }: { match: MatchResponse; onBack: () => v
           )}
         </div>
 
-        <hr className="border-border" />
+        <Separator />
 
         <p className="text-sm text-muted-foreground text-center">
           Predictions have been scored. To re-score, use the{' '}
@@ -153,8 +155,11 @@ export default function ResultEntryPage() {
   // Guard: missing URL param
   if (!id) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-destructive">Invalid match URL.</p>
+      <div className="max-w-2xl mx-auto space-y-4 text-center">
+        <Alert variant="destructive" className="text-left">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Invalid match URL.</AlertDescription>
+        </Alert>
         <Button variant="link" onClick={handleBack}>
           Back to Matches
         </Button>
@@ -166,10 +171,13 @@ export default function ResultEntryPage() {
 
   if (isError || !match) {
     return (
-      <div className="p-8 text-center space-y-2">
-        <p className="text-destructive font-medium">
-          {error instanceof Error ? error.message : 'Failed to load match.'}
-        </p>
+      <div className="max-w-2xl mx-auto text-center space-y-4">
+        <Alert variant="destructive" className="text-left">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error instanceof Error ? error.message : 'Failed to load match.'}
+          </AlertDescription>
+        </Alert>
         <Button variant="outline" onClick={handleBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Matches
@@ -181,7 +189,7 @@ export default function ResultEntryPage() {
   // Already scored — show read-only result
   if (match.status === 'SCORED') {
     return (
-      <div className="p-6">
+      <div className="max-w-2xl mx-auto">
         <ScoredResult match={match} onBack={handleBack} />
       </div>
     );
@@ -190,7 +198,7 @@ export default function ResultEntryPage() {
   // Not yet finished — show locked state
   if (match.status !== 'FINISHED') {
     return (
-      <div className="p-6">
+      <div className="max-w-2xl mx-auto">
         <NotReadyState match={match} onBack={handleBack} />
       </div>
     );
@@ -198,7 +206,7 @@ export default function ResultEntryPage() {
 
   // FINISHED — show result entry form
   return (
-    <div className="p-6 space-y-4">
+    <div className="max-w-2xl mx-auto space-y-4">
       <Button variant="ghost" size="sm" onClick={handleBack} className="-ml-2">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Matches

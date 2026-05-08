@@ -8,6 +8,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -96,12 +97,12 @@ function EmptyState() {
 
 // ─── Error state ──────────────────────────────────────────────────────────────
 
-function ErrorState() {
+function ErrorState({ errorMessage }: { errorMessage: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-      <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
-      <p className="text-sm font-medium">Could not load ranking. Please try again.</p>
-    </div>
+    <Alert variant="destructive">
+      <AlertCircle className="h-4 w-4" />
+      <AlertDescription>{errorMessage}</AlertDescription>
+    </Alert>
   );
 }
 
@@ -150,7 +151,7 @@ export default function MyRankingPage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="max-w-2xl mx-auto space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/40">
@@ -170,7 +171,7 @@ export default function MyRankingPage() {
       </div>
 
       {isLoading && <LoadingSkeleton />}
-      {isError && <ErrorState />}
+      {isError && <ErrorState errorMessage="Could not load ranking. Please try again." />}
 
       {!isLoading && !isError && !data && <EmptyState />}
 

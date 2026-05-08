@@ -55,7 +55,7 @@ export default function PredictionHistoryPage() {
 
   if (isError) {
     return (
-      <div className="container mx-auto py-6">
+      <div className="space-y-6">
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">
@@ -68,7 +68,7 @@ export default function PredictionHistoryPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>My Predictions</CardTitle>
