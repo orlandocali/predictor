@@ -82,6 +82,26 @@ public class ScoringEngine {
         return matchMapper.toResponse(scored);
     }
 
+    public void scoreMatchFromSavedResult(String matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + matchId));
+
+        if (match.getResult() == null) {
+            throw new IllegalStateException("Match '" + matchId + "' has no result saved");
+        }
+
+        if (match.getStatus() != MatchStatus.FINISHED) {
+            throw new IllegalArgumentException(
+                    "Match must be in FINISHED status to submit result, current: " + match.getStatus());
+        }
+
+        List<ScoringResult> scoringResults = scorePredictions(match, match.getResult());
+        rankingService.updateRankingsForMatch(matchId, scoringResults);
+
+        matchService.updateMatchStatus(matchId, MatchStatus.SCORED);
+        log.info("Match '{}' scored from saved result and transitioned to SCORED", matchId);
+    }
+
     private List<ScoringResult> scorePredictions(Match match, MatchResult result) {
         List<Prediction> predictions = predictionRepository.findByMatchId(match.getId());
         if (predictions.isEmpty()) {
@@ -143,7 +163,10 @@ public class ScoringEngine {
 
         // Knockout: determine actual winner
         String actualWinner;
-        if (ah > aa) {
+        // Use explicit qualifyingTeam when available (set by KnockoutScoringService)
+        if (r.getQualifyingTeam() != null) {
+            actualWinner = r.getQualifyingTeam();
+        } else if (ah > aa) {
             actualWinner = match.getHomeTeam();
         } else if (aa > ah) {
             actualWinner = match.getAwayTeam();

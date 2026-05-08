@@ -20,4 +20,10 @@ public class MatchResult {
     private Integer extraTimeHomeScore;
 
     private Integer extraTimeAwayScore;
+
+    private String qualifyingTeam;
+
+    private boolean wentToExtraTime;
+
+    private boolean wentToPenalties;
 }
