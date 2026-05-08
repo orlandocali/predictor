@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu, LogOut, User } from 'lucide-react';
+import { Menu, LogOut, User, Sun, Moon } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
+import { useTheme } from '@/context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -26,6 +27,7 @@ const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const isAdmin = user?.role === 'ADMIN';
   const [open, setOpen] = useState(false);
 
@@ -51,8 +53,17 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Desktop: user info + logout */}
+          {/* Desktop: theme toggle + user info + logout */}
           <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
             {user && (
               <>
                 <div className="hidden md:flex items-center gap-2">
@@ -150,6 +161,15 @@ export default function Navbar() {
                           )}
                         </div>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full gap-1.5"
+                        onClick={toggleTheme}
+                      >
+                        {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                        {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
