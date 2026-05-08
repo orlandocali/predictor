@@ -119,7 +119,7 @@ export default function MatchDetailPage() {
           <CardHeader>
             <CardTitle>Result</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex items-center justify-center gap-4">
               <span className="text-4xl font-bold tabular-nums">{data.result.homeScore}</span>
               <span className="text-2xl text-muted-foreground">-</span>
@@ -130,6 +130,11 @@ export default function MatchDetailPage() {
                 Penalties: <span className="font-medium">{data.result.penaltyWinner}</span>
               </p>
             )}
+            <div className="flex justify-center pt-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/results/${data.id}`}>View My Prediction Result</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

@@ -17,6 +17,7 @@ import PredictionPage from '@/features/predictions/pages/PredictionPage';
 import PredictionHistoryPage from '@/features/predictions/pages/PredictionHistoryPage';
 import { MatchManagementPage, UserManagementPage } from '@/features/admin';
 import ResultEntryPage from '@/features/admin/pages/ResultEntryPage';
+import MatchResultPage from '@/features/results/pages/MatchResultPage';
 
 export default function Routes() {
   return (
@@ -33,6 +34,7 @@ export default function Routes() {
           <Route path="matches/:id" element={<MatchDetailPage />} />
           <Route path="predictions" element={<PredictionPage />} />
           <Route path="predictions/history" element={<PredictionHistoryPage />} />
+          <Route path="results/:id" element={<MatchResultPage />} />
           <Route
             path="*"
             element={<div className="p-8 text-center">404 Not Found</div>}

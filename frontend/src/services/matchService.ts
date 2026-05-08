@@ -55,5 +55,5 @@ export const matchService = {
     apiDelete(`/api/v1/admin/matches/${id}`),
 
   submitResult: (matchId: string, body: SubmitResultBody): Promise<MatchResponse> =>
-    apiPost<SubmitResultBody, MatchResponse>(`/api/v1/admin/matches/${matchId}/result`, body),
+    apiPost<SubmitResultBody, MatchResponse>(`/api/admin/matches/${matchId}/result`, body),
 };
