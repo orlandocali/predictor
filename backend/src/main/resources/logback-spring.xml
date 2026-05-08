@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | %-5level | %X{requestId:-no-request-id} | %logger{36} | %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.app" level="DEBUG" />
+    <logger name="org.springframework.security" level="INFO" />
+    <logger name="org.springframework.data.mongodb" level="WARN" />
+    <logger name="org.springframework.web" level="INFO" />
+
+    <springProfile name="default,dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/predictor.log</file>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | %-5level | %X{requestId:-no-request-id} | %logger{36} | %msg%n</pattern>
+            </encoder>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/predictor.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>10MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxHistory>30</maxHistory>
+            </rollingPolicy>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="ROLLING_FILE" />
+        </root>
+    </springProfile>
+</configuration>
