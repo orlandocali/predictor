@@ -9,6 +9,14 @@ export interface SyncResult {
   errors: string[];
 }
 
+export interface SubmitResultBody {
+  homeScore: number;
+  awayScore: number;
+  penaltyWinner?: string;
+  extraTimeHomeScore?: number;
+  extraTimeAwayScore?: number;
+}
+
 function buildQuery(filters?: MatchFilters): string {
   const params = new URLSearchParams();
   if (filters?.stage) params.set('stage', filters.stage);
@@ -45,4 +53,7 @@ export const matchService = {
 
   deleteMatch: (id: string): Promise<void> =>
     apiDelete(`/api/v1/admin/matches/${id}`),
+
+  submitResult: (matchId: string, body: SubmitResultBody): Promise<MatchResponse> =>
+    apiPost<SubmitResultBody, MatchResponse>(`/api/v1/admin/matches/${matchId}/result`, body),
 };

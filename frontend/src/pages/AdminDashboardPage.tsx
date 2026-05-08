@@ -91,6 +91,18 @@ export default function AdminDashboardPage() {
         
         <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
           <CardHeader>
+            <CardTitle className="text-xl">Result Entry</CardTitle>
+            <CardDescription>Enter final scores for finished matches and trigger scoring.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center h-32">
+            <Link to="/admin/matches">
+              <Button variant="outline">Enter Results</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
+          <CardHeader>
             <CardTitle className="text-xl">System Settings</CardTitle>
             <CardDescription>Global platform configurations.</CardDescription>
           </CardHeader>

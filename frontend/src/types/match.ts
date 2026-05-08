@@ -12,6 +12,8 @@ export interface MatchResult {
   homeScore: number;
   awayScore: number;
   penaltyWinner?: string;
+  extraTimeHomeScore?: number;
+  extraTimeAwayScore?: number;
 }
 
 export interface MatchResponse {

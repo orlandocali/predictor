@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { PlusCircle, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, Pencil, Trash2, ClipboardList } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -100,6 +101,7 @@ export default function MatchManagementPage() {
   const [editingMatch, setEditingMatch] = useState<MatchResponse | undefined>();
   const [deletingMatch, setDeletingMatch] = useState<MatchResponse | undefined>();
 
+  const navigate = useNavigate();
   const { data: matches, isLoading, isError } = useAdminMatches();
   const deleteMatch = useDeleteMatch();
 
@@ -236,6 +238,18 @@ export default function MatchManagementPage() {
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
                         <StatusTransitionButton match={match} />
+                        {match.status === 'FINISHED' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/admin/matches/${match.id}/result`)}
+                            title="Enter result"
+                            className="text-primary"
+                          >
+                            <ClipboardList className="mr-1.5 h-3.5 w-3.5" />
+                            Enter Result
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"

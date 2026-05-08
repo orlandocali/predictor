@@ -16,6 +16,7 @@ import MatchDetailPage from '@/features/matches/pages/MatchDetailPage';
 import PredictionPage from '@/features/predictions/pages/PredictionPage';
 import PredictionHistoryPage from '@/features/predictions/pages/PredictionHistoryPage';
 import { MatchManagementPage, UserManagementPage } from '@/features/admin';
+import ResultEntryPage from '@/features/admin/pages/ResultEntryPage';
 
 export default function Routes() {
   return (
@@ -41,6 +42,7 @@ export default function Routes() {
           <Route path="admin" element={<MainLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="matches" element={<MatchManagementPage />} />
+            <Route path="matches/:id/result" element={<ResultEntryPage />} />
             <Route path="users" element={<UserManagementPage />} />
           </Route>
         </Route>
