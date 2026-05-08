@@ -1,7 +1,4 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Form,
   FormControl,
@@ -26,6 +23,12 @@ import type {
   PredictionResponse,
   CreatePredictionRequest,
 } from '@/types/prediction';
+import {
+  basePredictionSchema,
+  knockoutPredictionSchema,
+  type PredictionFormValues,
+} from '@/features/shared/utils/validationSchemas';
+import { useFormValidation } from '@/features/shared/hooks/useFormValidation';
 
 interface PredictionFormProps {
   match: MatchResponse;
@@ -34,22 +37,6 @@ interface PredictionFormProps {
   isPending: boolean;
   onSubmit: (data: CreatePredictionRequest) => void;
 }
-
-const basePredictionSchema = z.object({
-  predictedHomeScore: z.coerce.number<number>().int().min(0),
-  predictedAwayScore: z.coerce.number<number>().int().min(0),
-  predictedPenaltyWinner: z.string().optional(),
-});
-
-const knockoutPredictionSchema = basePredictionSchema.refine(
-  (values) => Boolean(values.predictedPenaltyWinner),
-  {
-    message: 'Penalty winner is required for knockout matches.',
-    path: ['predictedPenaltyWinner'],
-  }
-);
-
-type PredictionFormValues = z.infer<typeof basePredictionSchema>;
 
 const EMPTY_VALUES: PredictionFormValues = {
   predictedHomeScore: 0,
@@ -67,18 +54,18 @@ export default function PredictionForm({
   const isKnockout = match.stage !== 'GROUP_STAGE';
   const isDisabled = isLocked || isPending;
 
-  const form = useForm<PredictionFormValues>({
-    resolver: zodResolver(
-      isKnockout ? knockoutPredictionSchema : basePredictionSchema
-    ),
-    defaultValues: existingPrediction
-      ? {
-          predictedHomeScore: existingPrediction.predictedHomeScore,
-          predictedAwayScore: existingPrediction.predictedAwayScore,
-          predictedPenaltyWinner: existingPrediction.predictedPenaltyWinner ?? '',
-        }
-      : EMPTY_VALUES,
-  });
+  const form = useFormValidation(
+    isKnockout ? knockoutPredictionSchema : basePredictionSchema,
+    {
+      defaultValues: existingPrediction
+        ? {
+            predictedHomeScore: existingPrediction.predictedHomeScore,
+            predictedAwayScore: existingPrediction.predictedAwayScore,
+            predictedPenaltyWinner: existingPrediction.predictedPenaltyWinner ?? '',
+          }
+        : EMPTY_VALUES,
+    }
+  );
 
   useEffect(() => {
     if (existingPrediction) {

@@ -5,9 +5,6 @@
 // After successful login, AuthContext.login() handles navigation.
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Form,
   FormField,
@@ -28,16 +25,8 @@ import {
 } from '@/components/ui/card';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
-
-// ---------------------------------------------------------------------------
-// Validation schema
-// ---------------------------------------------------------------------------
-const loginSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { loginSchema, type LoginFormValues } from '@/features/shared/utils/validationSchemas';
+import { useFormValidation } from '@/features/shared/hooks/useFormValidation';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -46,8 +35,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useFormValidation(loginSchema, {
     defaultValues: {
       username: '',
       password: '',

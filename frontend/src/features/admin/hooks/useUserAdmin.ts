@@ -3,9 +3,16 @@
 // Exports schemas used by UserForm and query hooks used by UserManagementPage.
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { userService } from '@/services/userService';
+import {
+  createUserSchema,
+  updateUserSchema,
+  type CreateUserFormValues,
+  type UpdateUserFormValues,
+} from '@/features/shared/utils/validationSchemas';
 import type { UserPage, UserResponse } from '@/types/user';
+
+export { createUserSchema, updateUserSchema, type CreateUserFormValues, type UpdateUserFormValues };
 
 // ---------------------------------------------------------------------------
 // Query key constants
@@ -13,29 +20,8 @@ import type { UserPage, UserResponse } from '@/types/user';
 export const ADMIN_USERS_KEY = ['admin', 'users'] as const;
 
 // ---------------------------------------------------------------------------
-// Zod schemas — exported for use by UserForm
+// Schemas — exported for use by UserForm
 // ---------------------------------------------------------------------------
-export const createUserSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  displayName: z.string().min(1, 'Display name is required'),
-  role: z.enum(['USER', 'ADMIN']),
-});
-
-export const updateUserSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  displayName: z.string().min(1, 'Display name is required'),
-  role: z.enum(['USER', 'ADMIN']),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .optional()
-    .or(z.literal('')),
-});
-
-export type CreateUserFormValues = z.infer<typeof createUserSchema>;
-export type UpdateUserFormValues = z.infer<typeof updateUserSchema>;
-
 // ---------------------------------------------------------------------------
 // useAdminUsers — paginated list of all users
 // ---------------------------------------------------------------------------

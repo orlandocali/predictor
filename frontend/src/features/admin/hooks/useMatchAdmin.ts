@@ -3,9 +3,12 @@
 // Exports Zod schema (used by MatchForm) and two mutation hooks.
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { matchService } from '@/services/matchService';
 import type { MatchResponse, MatchFilters } from '@/types/match';
+import {
+  createMatchSchema,
+  type CreateMatchFormValues,
+} from '@/features/shared/utils/validationSchemas';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -13,40 +16,7 @@ import type { MatchResponse, MatchFilters } from '@/types/match';
 export const ADMIN_MATCHES_KEY = ['admin', 'matches'] as const;
 export const MATCHES_KEY = ['matches'] as const;
 
-// ---------------------------------------------------------------------------
-// Zod schema — shared with MatchForm
-// ---------------------------------------------------------------------------
-export const createMatchSchema = z
-  .object({
-    homeTeam: z.string().min(1, 'Home team is required'),
-    awayTeam: z.string().min(1, 'Away team is required'),
-    stage: z.enum([
-      'GROUP_STAGE',
-      'ROUND_OF_16',
-      'QUARTER_FINAL',
-      'SEMI_FINAL',
-      'THIRD_PLACE',
-      'FINAL',
-    ]),
-    groupName: z
-      .string()
-      .length(1, 'Group must be a single letter (A–H)')
-      .optional()
-      .or(z.literal('')),
-    kickoffAt: z
-      .string()
-      .min(1, 'Kickoff date/time is required')
-      .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Invalid date-time format'),
-  })
-  .refine(
-    (data) => data.stage !== 'GROUP_STAGE' || (!!data.groupName && data.groupName !== ''),
-    {
-      message: 'Group name is required for Group Stage',
-      path: ['groupName'],
-    }
-  );
-
-export type CreateMatchFormValues = z.infer<typeof createMatchSchema>;
+export { createMatchSchema, type CreateMatchFormValues };
 
 // ---------------------------------------------------------------------------
 // useAdminMatches — fetch all matches via admin endpoint
