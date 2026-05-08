@@ -4,11 +4,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import com.app.dto.PredictionRequest;
 import com.app.dto.PredictionResponse;
-import com.app.dto.SubmitPredictionRequest;
 import com.app.exception.PredictionLockedException;
 import com.app.exception.ResourceNotFoundException;
 import com.app.model.Match;
+import com.app.model.MatchStage;
 import com.app.model.MatchStatus;
 import com.app.model.Prediction;
 import com.app.repository.MatchRepository;
@@ -28,12 +29,17 @@ public class PredictionService {
         this.matchRepository = matchRepository;
     }
 
-    public PredictionResponse submitPrediction(String userId, SubmitPredictionRequest request) {
+    public PredictionResponse submitPrediction(String userId, PredictionRequest request) {
         String matchId = request.getMatchId();
         log.debug("Fetching match id '{}' for prediction submission by user '{}'", matchId, userId);
 
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + matchId));
+
+        if (match.getStage() != MatchStage.GROUP_STAGE
+                && (request.getPredictedPenaltyWinner() == null || request.getPredictedPenaltyWinner().isBlank())) {
+            throw new IllegalArgumentException("Penalty winner is required for knockout stage matches");
+        }
 
         if (match.getStatus() == MatchStatus.LOCKED
                 || match.getStatus() == MatchStatus.FINISHED
