@@ -102,6 +102,33 @@ public class ScoringEngine {
         log.info("Match '{}' scored from saved result and transitioned to SCORED", matchId);
     }
 
+    /**
+     * Re-scores all predictions for an already-SCORED match using the saved result.
+     * Does NOT update rankings or transition match status — the caller is responsible
+     * for triggering a full ranking rebuild after recalculation.
+     *
+     * @param matchId the match to rescore
+     * @return the list of fresh ScoringResult objects with updated points
+     */
+    public List<ScoringResult> rescoreMatchPredictions(String matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + matchId));
+
+        if (match.getResult() == null) {
+            throw new IllegalStateException("Match '" + matchId + "' has no result saved");
+        }
+
+        if (match.getStatus() != MatchStatus.SCORED) {
+            throw new IllegalArgumentException(
+                    "Match must be in SCORED status to recalculate, current: " + match.getStatus());
+        }
+
+        log.info("Rescoring predictions for match '{}'", matchId);
+        List<ScoringResult> scoringResults = scorePredictions(match, match.getResult());
+        log.info("Rescored {} predictions for match '{}'", scoringResults.size(), matchId);
+        return scoringResults;
+    }
+
     private List<ScoringResult> scorePredictions(Match match, MatchResult result) {
         List<Prediction> predictions = predictionRepository.findByMatchId(match.getId());
         if (predictions.isEmpty()) {
