@@ -22,7 +22,7 @@ app:
     refresh-token-expiration-ms: ${JWT_REFRESH_TOKEN_EXPIRATION_MS:604800000}
   admin:
     username: ${ADMIN_USERNAME:admin}
-    password: ${ADMIN_PASSWORD:7XK@7-4Hs69TLhv7}
+    password: ${ADMIN_PASSWORD:changeme}
 
 logging:
   level:
