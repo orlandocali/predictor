@@ -1,9 +1,10 @@
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Star } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGroupedMatches } from '@/features/matches/hooks/useGroupedMatches';
 import type { MatchStage } from '@/types/match';
 import MatchPredictionCard from '../components/MatchPredictionCard';
+import { PageHeader } from '@/components/PageHeader';
 
 const STAGE_LABELS: Record<MatchStage, string> = {
   GROUP_STAGE: 'Group Stage',
@@ -19,12 +20,13 @@ function PredictionPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">My Predictions</h1>
-        <p className="text-sm text-muted-foreground">Submit your score predictions before each match locks</p>
-      </div>
+      <PageHeader
+        title="My Predictions"
+        description="Submit your score predictions before each match locks."
+        icon={<Star className="h-5 w-5" />}
+      />
 
-      <div className="flex gap-1 border-b">
+      <div className="flex gap-1 border-b border-border">
         <NavLink
           to="/predictions"
           end

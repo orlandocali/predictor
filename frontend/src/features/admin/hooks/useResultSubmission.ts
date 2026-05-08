@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { matchService } from '@/services/matchService';
-import type { MatchResponse, MatchStage } from '@/types/match';
+import type { MatchResponse } from '@/types/match';
 import {
   isKnockoutStage,
   makeResultSchema,

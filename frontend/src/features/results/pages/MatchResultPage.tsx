@@ -3,7 +3,7 @@
 // Route: /results/:id
 
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMatchResult, useResultPrediction } from '@/features/results/hooks/useMatchResult';

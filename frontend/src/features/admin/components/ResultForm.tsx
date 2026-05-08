@@ -60,7 +60,10 @@ export default function ResultForm({ match, onSuccess }: ResultFormProps) {
   const mutation = useSubmitResult(match);
 
   const form = useForm<ResultFormValues>({
-    resolver: zodResolver(makeResultSchema(match.stage)),
+    // zodResolver with z.coerce.number() produces unknown input types that don't
+    // satisfy RHF's strict Resolver generic. Cast is safe: runtime behavior is correct.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(makeResultSchema(match.stage)) as any,
     defaultValues: {
       homeScore: 0,
       awayScore: 0,

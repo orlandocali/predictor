@@ -4,10 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMutation } from '@tanstack/react-query';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Users, Calendar, RefreshCw, ClipboardList, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { matchService } from '@/services/matchService';
 import type { SyncResult } from '@/services/matchService';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function AdminDashboardPage() {
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
@@ -32,89 +33,100 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Platform management and system overview.
-          </p>
-        </div>
-        <Badge variant="destructive" className="px-3 py-1 font-medium">
-          Admin Access Only
-        </Badge>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Admin Dashboard"
+        description="Platform management and system overview."
+        icon={<ShieldCheck className="h-5 w-5" />}
+        action={<Badge variant="destructive" className="px-3 py-1 font-medium">Admin Only</Badge>}
+      />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
-          <CardHeader>
-            <CardTitle className="text-xl">User Management</CardTitle>
-            <CardDescription>View and manage all registered users.</CardDescription>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* User Management */}
+        <Card className="group transition-colors hover:border-border/80">
+          <CardHeader className="pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-2">
+              <Users className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-base">User Management</CardTitle>
+            <CardDescription>View and manage all registered platform users.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-32">
+          <CardContent>
             <Link to="/admin/users">
-              <Button variant="outline">Manage Users</Button>
+              <Button variant="outline" size="sm" className="w-full">Manage Users</Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
-          <CardHeader>
-            <CardTitle className="text-xl">Match Configuration</CardTitle>
-            <CardDescription>Setup and update match outcomes.</CardDescription>
+        {/* Match Configuration */}
+        <Card className="group transition-colors hover:border-border/80">
+          <CardHeader className="pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-2">
+              <Calendar className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-base">Match Configuration</CardTitle>
+            <CardDescription>Set up matches and update final outcomes.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-32">
+          <CardContent>
             <Link to="/admin/matches">
-              <Button variant="outline">Manage Matches</Button>
+              <Button variant="outline" size="sm" className="w-full">Manage Matches</Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
-          <CardHeader>
-            <CardTitle className="text-xl">Data Sync</CardTitle>
-            <CardDescription>Fetch and upsert latest match data from the remote source.</CardDescription>
+        {/* Data Sync */}
+        <Card className="group transition-colors hover:border-border/80">
+          <CardHeader className="pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-2">
+              <RefreshCw className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-base">Data Sync</CardTitle>
+            <CardDescription>Fetch and upsert the latest match data from the remote source.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-32 gap-2">
-            <Button variant="outline" onClick={handleSyncClick} disabled={syncMutation.isPending}>
-              {syncMutation.isPending ? 'Syncing...' : 'Sync Now'}
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleSyncClick}
+              disabled={syncMutation.isPending}
+            >
+              {syncMutation.isPending ? (
+                <span className="flex items-center gap-2">
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  Syncing…
+                </span>
+              ) : (
+                'Sync Now'
+              )}
             </Button>
-            {syncResult ? (
-              <p className="text-xs text-muted-foreground">
-                {'↑ '}
-                {syncResult.created} created {'· '}
-                {syncResult.updated} updated {'· '}
-                {syncResult.failed} failed
+            {syncResult && (
+              <p className="text-xs text-muted-foreground text-center">
+                {syncResult.created} created · {syncResult.updated} updated · {syncResult.failed} failed
               </p>
-            ) : null}
+            )}
             {syncError && (
-              <Alert variant="destructive" className="mt-2">
+              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{syncError}</AlertDescription>
               </Alert>
             )}
           </CardContent>
         </Card>
-        
-        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
-          <CardHeader>
-            <CardTitle className="text-xl">Result Entry</CardTitle>
+
+        {/* Result Entry */}
+        <Card className="group transition-colors hover:border-border/80">
+          <CardHeader className="pb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary mb-2">
+              <ClipboardList className="h-4.5 w-4.5" />
+            </div>
+            <CardTitle className="text-base">Result Entry</CardTitle>
             <CardDescription>Enter final scores for finished matches and trigger scoring.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center h-32">
+          <CardContent>
             <Link to="/admin/matches">
-              <Button variant="outline">Enter Results</Button>
+              <Button variant="outline" size="sm" className="w-full">Enter Results</Button>
             </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="border-dashed border-2 bg-muted/30 shadow-none hover:bg-muted/50 transition-colors">
-          <CardHeader>
-            <CardTitle className="text-xl">System Settings</CardTitle>
-            <CardDescription>Global platform configurations.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-center justify-center h-32 text-muted-foreground italic">
-            Content coming soon
           </CardContent>
         </Card>
       </div>

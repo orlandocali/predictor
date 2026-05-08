@@ -86,21 +86,21 @@ export function isKnockoutStage(stage: string): boolean {
 
 export const resultSchema = z.object({
   homeScore: z.coerce
-    .number({ invalid_type_error: 'Score must be a number' })
+    .number({ error: 'Score must be a number' })
     .int('Score must be a whole number')
     .min(0, 'Score cannot be negative'),
   awayScore: z.coerce
-    .number({ invalid_type_error: 'Score must be a number' })
+    .number({ error: 'Score must be a number' })
     .int('Score must be a whole number')
     .min(0, 'Score cannot be negative'),
   penaltyWinner: z.string().optional(),
   extraTimeHomeScore: z.coerce
-    .number({ invalid_type_error: 'Score must be a number' })
+    .number({ error: 'Score must be a number' })
     .int('Score must be a whole number')
     .min(0, 'Score cannot be negative')
     .optional(),
   extraTimeAwayScore: z.coerce
-    .number({ invalid_type_error: 'Score must be a number' })
+    .number({ error: 'Score must be a number' })
     .int('Score must be a whole number')
     .min(0, 'Score cannot be negative')
     .optional(),

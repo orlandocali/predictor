@@ -9,10 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/PageHeader";
 
 import { useLeaderboard, useCurrentUserRank } from "@/features/rankings/hooks/useLeaderboard";
 import { useAuth } from "@/features/auth/useAuth";
@@ -114,54 +115,46 @@ function YourPositionCard() {
 
   if (isLoading) {
     return (
-      <Card className="border-amber-200 bg-amber-50/60 dark:border-amber-800 dark:bg-amber-950/20">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
-            <TrendingUp className="h-4 w-4" aria-hidden="true" />
-            Your Position
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-6">
-            <Skeleton className="h-10 w-14" />
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-6 w-20" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-amber-800/40 bg-amber-950/20 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="h-4 w-4 text-amber-400" />
+          <span className="text-sm font-semibold text-amber-400">Your Position</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <Skeleton className="h-10 w-14" />
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+      </div>
     );
   }
 
   if (!data) return null;
 
   return (
-    <Card className="border-amber-200 bg-amber-50/60 dark:border-amber-800 dark:bg-amber-950/20">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-400">
-          <TrendingUp className="h-4 w-4" aria-hidden="true" />
-          Your Position
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-black tabular-nums text-amber-600 dark:text-amber-400">
-              #{data.rank}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Username</span>
-            <span className="font-semibold">{data.username}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Total Points</span>
-            <span className="text-xl font-bold tabular-nums text-foreground">
-              {data.totalPoints.toLocaleString()}
-            </span>
-          </div>
+    <div className="rounded-lg border border-amber-800/40 bg-amber-950/20 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <TrendingUp className="h-4 w-4 text-amber-400" />
+        <span className="text-sm font-semibold text-amber-400">Your Position</span>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-display font-black tabular-nums text-amber-400">
+            #{data.rank}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Username</span>
+          <span className="font-semibold">{data.username}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Total Points</span>
+          <span className="text-xl font-bold tabular-nums text-foreground">
+            {data.totalPoints.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -178,7 +171,7 @@ function LeaderboardRow({
     <TableRow
       className={
         isCurrentUser
-          ? "bg-amber-50 font-semibold hover:bg-amber-100 dark:bg-amber-950/30 dark:hover:bg-amber-950/50"
+          ? "bg-amber-950/30 hover:bg-amber-950/50 font-semibold"
           : undefined
       }
       aria-current={isCurrentUser ? "true" : undefined}
@@ -187,18 +180,12 @@ function LeaderboardRow({
         <RankBadge rank={entry.rank} />
       </TableCell>
       <TableCell className="py-3">
-        <span
-          className={
-            isCurrentUser
-              ? "font-bold text-amber-700 dark:text-amber-400"
-              : "text-foreground"
-          }
-        >
+        <span className={isCurrentUser ? "font-bold text-amber-400" : "text-foreground"}>
           {entry.username}
           {isCurrentUser && (
             <Badge
               variant="outline"
-              className="ml-2 border-amber-400 bg-amber-100 px-1.5 py-0 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+              className="ml-2 border-amber-600 bg-amber-900/40 px-1.5 py-0 text-[10px] font-semibold text-amber-400"
             >
               You
             </Badge>
@@ -238,23 +225,11 @@ export default function LeaderboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Page header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/40">
-          <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground">
-            Leaderboard
-          </h1>
-          {data && (
-            <p className="text-sm text-muted-foreground">
-              {data.totalElements.toLocaleString()} player
-              {data.totalElements !== 1 ? "s" : ""} ranked
-            </p>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="Leaderboard"
+        description={data ? `${data.totalElements.toLocaleString()} player${data.totalElements !== 1 ? 's' : ''} ranked` : 'FIFA World Cup 2026'}
+        icon={<Trophy className="h-5 w-5" />}
+      />
 
       {/* Current user card */}
       {isAuthenticated && <YourPositionCard />}

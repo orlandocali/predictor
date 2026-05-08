@@ -1,20 +1,28 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  isActive
-    ? 'text-primary font-semibold text-sm'
-    : 'text-muted-foreground hover:text-foreground text-sm transition-colors';
+  cn(
+    'relative text-sm font-medium transition-colors',
+    isActive
+      ? 'text-primary after:absolute after:-bottom-[21px] after:left-0 after:right-0 after:h-[2px] after:bg-primary after:rounded-t-full'
+      : 'text-muted-foreground hover:text-foreground'
+  );
 
 const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
-  isActive
-    ? 'block rounded-md py-2.5 px-3 text-sm font-medium text-primary bg-primary/10'
-    : 'block rounded-md py-2.5 px-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors';
+  cn(
+    'flex items-center rounded-md py-2.5 px-3 text-sm font-medium transition-colors',
+    isActive
+      ? 'text-primary bg-primary/10 font-semibold'
+      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+  );
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -22,31 +30,23 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="border-b border-border bg-card">
+    <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo + desktop nav links */}
-          <div className="flex items-center gap-10">
-            <Link to="/" className="text-xl font-bold text-primary">
-              ⚽ Predictor
+          <div className="flex items-center gap-8">
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <span className="text-xl font-display font-bold text-primary tracking-tight">
+                ⚽ Predictor
+              </span>
             </Link>
-            <div className="hidden space-x-6 md:flex items-center">
-              <NavLink to="/dashboard" className={navLinkClass}>
-                Dashboard
-              </NavLink>
-              <NavLink to="/matches" className={navLinkClass}>
-                Matches
-              </NavLink>
-              <NavLink to="/predictions" className={navLinkClass}>
-                Predictions
-              </NavLink>
-              <NavLink to="/rankings" className={navLinkClass}>
-                Rankings
-              </NavLink>
+            <div className="hidden space-x-7 md:flex items-center h-16">
+              <NavLink to="/dashboard" className={navLinkClass}>Dashboard</NavLink>
+              <NavLink to="/matches" className={navLinkClass}>Matches</NavLink>
+              <NavLink to="/predictions" className={navLinkClass}>Predictions</NavLink>
+              <NavLink to="/rankings" className={navLinkClass}>Rankings</NavLink>
               {isAdmin && (
-                <NavLink to="/admin" className={navLinkClass}>
-                  Admin
-                </NavLink>
+                <NavLink to="/admin" className={navLinkClass}>Admin</NavLink>
               )}
             </div>
           </div>
@@ -55,17 +55,28 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {user && (
               <>
-                <span className="hidden text-sm text-muted-foreground md:block">
-                  {user.username}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hidden md:inline-flex"
-                  onClick={() => logout()}
-                >
-                  Sign out
-                </Button>
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1.5">
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-sm text-foreground font-medium">
+                      {user.username}
+                    </span>
+                    {isAdmin && (
+                      <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-4 ml-0.5">
+                        Admin
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground gap-1.5"
+                    onClick={() => logout()}
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Sign out
+                  </Button>
+                </div>
               </>
             )}
 
@@ -81,48 +92,37 @@ export default function Navbar() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 flex flex-col p-0">
-                {/* Drawer header / logo */}
-                <div className="px-4 py-5 border-b border-border">
+              <SheetContent side="left" className="w-72 flex flex-col p-0 bg-card border-border">
+                {/* Drawer header */}
+                <div className="px-5 py-5 border-b border-border">
                   <Link
                     to="/"
-                    className="text-xl font-bold text-primary"
+                    className="flex items-center gap-2"
                     onClick={() => setOpen(false)}
                   >
-                    ⚽ Predictor
+                    <span className="text-xl font-display font-bold text-primary tracking-tight">
+                      ⚽ Predictor
+                    </span>
                   </Link>
                 </div>
 
                 {/* Nav links */}
                 <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
-                  <NavLink
-                    to="/dashboard"
-                    className={mobileNavLinkClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    Dashboard
-                  </NavLink>
-                  <NavLink
-                    to="/matches"
-                    className={mobileNavLinkClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    Matches
-                  </NavLink>
-                  <NavLink
-                    to="/predictions"
-                    className={mobileNavLinkClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    Predictions
-                  </NavLink>
-                  <NavLink
-                    to="/rankings"
-                    className={mobileNavLinkClass}
-                    onClick={() => setOpen(false)}
-                  >
-                    Rankings
-                  </NavLink>
+                  {[
+                    { to: '/dashboard', label: 'Dashboard' },
+                    { to: '/matches', label: 'Matches' },
+                    { to: '/predictions', label: 'Predictions' },
+                    { to: '/rankings', label: 'Rankings' },
+                  ].map(({ to, label }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      className={mobileNavLinkClass}
+                      onClick={() => setOpen(false)}
+                    >
+                      {label}
+                    </NavLink>
+                  ))}
                   {isAdmin && (
                     <NavLink
                       to="/admin"
@@ -139,18 +139,24 @@ export default function Navbar() {
                   <div className="mt-auto">
                     <Separator />
                     <div className="flex flex-col gap-3 px-4 py-4">
-                      <span className="text-sm text-muted-foreground truncate">
-                        {user.username}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-medium truncate">{user.username}</span>
+                          {isAdmin && (
+                            <span className="text-xs text-destructive font-medium">Admin</span>
+                          )}
+                        </div>
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          setOpen(false);
-                          logout();
-                        }}
+                        className="w-full gap-1.5"
+                        onClick={() => { setOpen(false); logout(); }}
                       >
+                        <LogOut className="h-3.5 w-3.5" />
                         Sign out
                       </Button>
                     </div>
