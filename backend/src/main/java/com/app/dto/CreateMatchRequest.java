@@ -32,7 +32,7 @@ public class CreateMatchRequest {
 
     private String venue;
 
-    private String fifaMatchId;
+    private String externalMatchId;
 
     private MatchResult result;
 }

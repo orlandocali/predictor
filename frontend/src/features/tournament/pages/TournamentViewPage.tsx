@@ -102,7 +102,7 @@ export default function TournamentViewPage() {
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8 max-w-screen-xl">
       <PageHeader
         title="Tournament"
-        description="FIFA World Cup 2026 — group standings and knockout bracket"
+        description="World Cup 2026 — group standings and knockout bracket"
         icon={<Trophy className="h-5 w-5" />}
       />
 

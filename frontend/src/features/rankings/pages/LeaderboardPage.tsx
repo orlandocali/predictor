@@ -227,7 +227,7 @@ export default function LeaderboardPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <PageHeader
         title="Leaderboard"
-        description={data ? `${data.totalElements.toLocaleString()} player${data.totalElements !== 1 ? 's' : ''} ranked` : 'FIFA World Cup 2026'}
+        description={data ? `${data.totalElements.toLocaleString()} player${data.totalElements !== 1 ? 's' : ''} ranked` : 'World Cup 2026'}
         icon={<Trophy className="h-5 w-5" />}
       />
 

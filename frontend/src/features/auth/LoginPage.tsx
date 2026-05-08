@@ -68,7 +68,7 @@ export default function LoginPage() {
           <span className="text-4xl font-display font-bold text-primary tracking-tight">
             ⚽ Predictor
           </span>
-          <p className="mt-1 text-sm text-muted-foreground">FIFA World Cup 2026</p>
+          <p className="mt-1 text-sm text-muted-foreground">World Cup 2026</p>
         </div>
 
         <Card className="border-border/60 shadow-2xl shadow-black/40">

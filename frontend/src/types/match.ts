@@ -21,7 +21,7 @@ export interface MatchResult {
 
 export interface MatchResponse {
   id: string;
-  fifaMatchId?: string;
+  externalMatchId?: string;
   homeTeam: string;
   awayTeam: string;
   stage: MatchStage;

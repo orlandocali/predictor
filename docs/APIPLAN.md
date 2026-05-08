@@ -1,6 +1,6 @@
 # api-plan.md
 
-# FIFA World Cup 2026 Prediction App - API Plan
+# World Cup 2026 Prediction App - API Plan
 
 ## Overview
 
@@ -347,7 +347,7 @@ Delete match.
 
 ## POST /api/v1/admin/matches/sync
 
-Sync matches from external World Cup API (upsert by fifaMatchId).
+Sync matches from external World Cup API (upsert by externalMatchId).
 
 ---
 

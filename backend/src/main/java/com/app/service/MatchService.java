@@ -92,7 +92,7 @@ public class MatchService {
         Match existingMatch = matchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + id));
 
-        existingMatch.setFifaMatchId(request.getFifaMatchId());
+        existingMatch.setExternalMatchId(request.getExternalMatchId());
         existingMatch.setHomeTeam(request.getHomeTeam());
         existingMatch.setAwayTeam(request.getAwayTeam());
         existingMatch.setStage(request.getStage());

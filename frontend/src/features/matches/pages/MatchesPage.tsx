@@ -88,7 +88,7 @@ export default function MatchesPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <PageHeader
         title="Matches"
-        description="FIFA World Cup 2026 — group stage and knockout fixtures."
+        description="World Cup 2026 — group stage and knockout fixtures."
         icon={<Trophy className="h-5 w-5" />}
       />
 

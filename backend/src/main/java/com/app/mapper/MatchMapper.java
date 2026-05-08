@@ -19,7 +19,7 @@ public class MatchMapper {
 
         return MatchResponse.builder()
                 .id(match.getId())
-                .fifaMatchId(match.getFifaMatchId())
+            .externalMatchId(match.getExternalMatchId())
                 .homeTeam(match.getHomeTeam())
                 .awayTeam(match.getAwayTeam())
                 .stage(match.getStage())
@@ -35,7 +35,7 @@ public class MatchMapper {
 
     public Match toEntity(CreateMatchRequest request) {
         return Match.builder()
-                .fifaMatchId(request.getFifaMatchId())
+                .externalMatchId(request.getExternalMatchId())
                 .homeTeam(request.getHomeTeam())
                 .awayTeam(request.getAwayTeam())
                 .stage(request.getStage())

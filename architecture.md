@@ -1,4 +1,4 @@
-# Architecture — FIFA World Cup 2026 Prediction Platform
+# Architecture — World Cup 2026 Prediction Platform
 
 ## 🏗️ High-Level Architecture
 [Browser] → Vite/React/TS → shadcn/ui → TanStack Query → Axios/fetch

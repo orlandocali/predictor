@@ -1,8 +1,8 @@
-# FIFA World Cup 2026 Prediction App - Game Rules
+# World Cup 2026 Prediction App - Game Rules
 
 ## Overview
 
-This application allows registered users to predict the results of FIFA World Cup 2026 matches and compete on a global leaderboard based on prediction accuracy.
+This application allows registered users to predict the results of World Cup 2026 matches and compete on a global leaderboard based on prediction accuracy.
 
 Users are created by administrators. Public registration is not available in v1.
 
@@ -187,7 +187,7 @@ The application must include pages for:
 
 ## Group Stage
 
-* Matches grouped by FIFA groups
+* Matches grouped by tournament groups
 * Match dates and kickoff times
 * Prediction status
 
@@ -284,7 +284,7 @@ The following features are NOT included in v1:
 * Bonus questions
 * Statistics dashboards
 * Mobile application
-* FIFA API integrations
+* External API integrations
 * Multiple tournaments support
 
 ---

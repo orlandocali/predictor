@@ -14,6 +14,6 @@ public class SwaggerConfig {
         return new OpenAPI().info(new Info()
                 .title("Predictor API")
                 .version("1.0.0")
-                .description("FIFA World Cup 2026 Prediction Platform API"));
+            .description("World Cup 2026 Prediction Platform API"));
     }
 }

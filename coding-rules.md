@@ -1,4 +1,4 @@
-# Coding Rules — FIFA World Cup 2026 Prediction Platform
+# Coding Rules — World Cup 2026 Prediction Platform
 
 ## 📜 General Principles
 - **Explicit over implicit**: Prefer clear types, names, and error handling over magic numbers or implicit conversions.

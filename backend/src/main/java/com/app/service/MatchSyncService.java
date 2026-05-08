@@ -118,11 +118,11 @@ public class MatchSyncService {
      */
     private boolean upsertMatch(RemoteMatchDto remote) {
         // Prefer numeric match number; fall back to composite key for group-stage matches without a num
-        String fifaMatchId = remote.getNum() != null
+        String externalMatchId = remote.getNum() != null
                 ? String.valueOf(remote.getNum())
                 : remote.getTeam1() + "|" + remote.getTeam2() + "|" + remote.getDate();
 
-        Optional<Match> existing = matchRepository.findByFifaMatchId(fifaMatchId);
+        Optional<Match> existing = matchRepository.findByExternalMatchId(externalMatchId);
 
         Instant kickoffAt = parseKickoffAt(remote.getDate(), remote.getTime());
         MatchStage stage = parseStage(remote.getRound(), remote.getGroup());
@@ -145,11 +145,11 @@ public class MatchSyncService {
                 }
             }
             matchRepository.save(match);
-            log.debug("Updated match: {} vs {} (num={})", remote.getTeam1(), remote.getTeam2(), fifaMatchId);
+            log.debug("Updated match: {} vs {} (num={})", remote.getTeam1(), remote.getTeam2(), externalMatchId);
             return false;
         } else {
             Match match = Match.builder()
-                    .fifaMatchId(fifaMatchId)
+                    .externalMatchId(externalMatchId)
                     .homeTeam(remote.getTeam1())
                     .awayTeam(remote.getTeam2())
                     .kickoffAt(kickoffAt)
@@ -160,7 +160,7 @@ public class MatchSyncService {
                     .result(result)
                     .build();
             matchRepository.save(match);
-            log.debug("Created match: {} vs {} (num={})", remote.getTeam1(), remote.getTeam2(), fifaMatchId);
+            log.debug("Created match: {} vs {} (num={})", remote.getTeam1(), remote.getTeam2(), externalMatchId);
             return true;
         }
     }

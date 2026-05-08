@@ -1,7 +1,7 @@
-# Context — FIFA World Cup 2026 Prediction Platform
+# Context — World Cup 2026 Prediction Platform
 
 ## 🎯 Project Purpose
-A full-stack prediction platform allowing registered users to forecast FIFA World Cup 2026 match outcomes, compete on a global leaderboard, and track cumulative scores. The system emphasizes accuracy, fairness, and a clean, responsive UI.
+A full-stack prediction platform allowing registered users to forecast World Cup 2026 match outcomes, compete on a global leaderboard, and track cumulative scores. The system emphasizes accuracy, fairness, and a clean, responsive UI.
 
 ## 📦 Scope (v1 MVP)
 **In Scope:**
@@ -15,7 +15,7 @@ A full-stack prediction platform allowing registered users to forecast FIFA Worl
 **Out of Scope (v1):**
 - Public registration, social features, push notifications
 - Real-time live updates, bonus questions, statistics dashboards
-- Mobile app, FIFA API integration, multiple tournaments
+- Mobile app, external API integration, multiple tournaments
 
 ## 👥 Target Users
 | Role    | Capabilities                                                                 |

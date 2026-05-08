@@ -14,7 +14,7 @@ export default function MainLayout() {
         </div>
       </main>
       <footer className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        FIFA World Cup 2026 Prediction Platform
+        World Cup 2026 Prediction Platform
       </footer>
     </div>
   );

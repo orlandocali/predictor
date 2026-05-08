@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-# FIFA World Cup 2026 Prediction App - Development Roadmap
+# World Cup 2026 Prediction App - Development Roadmap
 
 ## Project Philosophy
 
@@ -164,7 +164,7 @@ Establish secure authenticated application access with role-based protection.
 
 ## Goal
 
-Allow administrators to manage FIFA matches and tournament structure.
+Allow administrators to manage matches and tournament structure.
 
 ---
 
@@ -473,7 +473,7 @@ These are intentionally postponed.
 * Matchday rankings
 * Notifications
 * Statistics dashboards
-* FIFA API synchronization
+* External API synchronization
 * Live updates
 * Mobile application
 * Multiple tournaments

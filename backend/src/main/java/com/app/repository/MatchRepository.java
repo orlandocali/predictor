@@ -23,5 +23,5 @@ public interface MatchRepository extends MongoRepository<Match, String> {
 
 	List<Match> findByKickoffAtBefore(Instant time);
 
-	Optional<Match> findByFifaMatchId(String fifaMatchId);
+	Optional<Match> findByExternalMatchId(String externalMatchId);
 }

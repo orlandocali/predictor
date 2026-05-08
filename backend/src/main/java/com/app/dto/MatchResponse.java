@@ -18,7 +18,7 @@ public class MatchResponse {
 
     private String id;
 
-    private String fifaMatchId;
+    private String externalMatchId;
 
     private String homeTeam;
 

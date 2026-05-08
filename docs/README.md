@@ -1,4 +1,4 @@
-# Predictor — FIFA World Cup 2026
+# Predictor — World Cup 2026
 
 Full-stack prediction platform skeleton. React + Spring Boot + MongoDB.
 

@@ -29,7 +29,7 @@ public class Match {
     @Id
     private String id;
 
-    private String fifaMatchId;
+    private String externalMatchId;
 
     private String homeTeam;
 

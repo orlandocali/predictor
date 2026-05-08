@@ -1,6 +1,6 @@
 # domain-model.md
 
-# FIFA World Cup 2026 Prediction App - Domain Model
+# World Cup 2026 Prediction App - Domain Model
 
 ## Overview
 
@@ -49,14 +49,14 @@ ADMIN
 
 # Match
 
-Represents an official FIFA World Cup match.
+Represents an official World Cup match.
 
 ## Fields
 
 | Field       | Type        | Description                       |
 | ----------- | ----------- | --------------------------------- |
 | id          | String      | MongoDB ObjectId                  |
-| fifaMatchId | String      | Optional external FIFA identifier |
+| externalMatchId | String      | Optional external match identifier |
 | homeTeam    | String      | Home team name                    |
 | awayTeam    | String      | Away team name                    |
 | stage       | MatchStage  | Tournament stage                  |

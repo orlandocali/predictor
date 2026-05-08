@@ -1,5 +1,5 @@
 // Team name → flagcdn.com ISO-2 code lookup.
-// Covers all 48 FIFA World Cup 2026 participants.
+// Covers all 48 World Cup 2026 participants.
 // Both display name and normalised name (used by the external sync API) are registered.
 // England and Scotland use GB subdivision codes supported by flagcdn.com.
 // Returns null for unknown teams so callers can render nothing gracefully.
