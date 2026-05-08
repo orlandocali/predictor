@@ -12,7 +12,7 @@ export function useMyRanking() {
 
   return useQuery({
     queryKey: myRankingQueryKey(),
-    queryFn: () => apiGet<MyRankingData>('/api/rankings/me'),
+    queryFn: () => apiGet<MyRankingData>('/api/v1/rankings/me'),
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000,
   });
