@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/features/auth/AuthContext';
+import { useAuth } from '@/features/auth/useAuth';
 import { apiGet } from '@/services/api';
 import type { RankingPage } from '@/types/ranking';
 

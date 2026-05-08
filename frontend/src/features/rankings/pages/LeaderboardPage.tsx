@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { useLeaderboard, useCurrentUserRank } from "@/features/rankings/hooks/useLeaderboard";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/useAuth";
 import type { RankingEntry } from "@/types/ranking";
 
 const PAGE_SIZE = 20;
