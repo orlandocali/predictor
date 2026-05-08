@@ -64,16 +64,30 @@ Avoid:
 * Match entity, DTOs, repository, and service
 * Admin match CRUD (create, list, get, update, delete)
 * Match status lifecycle (SCHEDULED → LOCKED → FINISHED → SCORED)
-* User-facing match endpoints (list, grouped, detail)
+* Status transition validation (enforced in MatchService)
+* Auto-lock scheduler (MatchLockScheduler, runs every 60s)
+* User-facing match endpoints (list, grouped, detail, group filter)
 * Match grouping by stage and group name
 * Remote match sync from external World Cup API
 * Frontend match list page, match detail page
 * Match cards, status badges, stage group cards
-* Admin match management page with create/edit form
+* Admin match management page with create/edit/delete
+
+### Predictions (Phase 4)
+
+* Prediction entity, DTOs, repository, and service
+* One-prediction-per-user-per-match enforced (compound unique index + service logic)
+* Score validation (≥ 0, both DTO and service level)
+* 12-hour lock enforcement (PredictionService + PredictionLockedException → HTTP 409)
+* Prediction submission and update endpoints
+* Prediction form with Zod validation and locked-state UI
+* MatchPredictionCard with local lock calculation
+* Edit prediction flow (pre-filled form, disabled when locked)
+* Prediction history page with pagination, points, and status display
 
 ---
 
-# Phase 4 — Predictions (Current)
+# Phase 5 — Result Processing & Scoring (Current)
 
 > Next phase.
 
