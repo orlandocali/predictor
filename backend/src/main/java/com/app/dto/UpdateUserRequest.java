@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 public class UpdateUserRequest {
 
     @NotBlank
+    private String username;
+
+    @NotBlank
     private String displayName;
 
     @NotNull

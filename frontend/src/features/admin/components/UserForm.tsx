@@ -270,7 +270,7 @@ export default function UserForm({ open, onOpenChange, user }: UserFormProps) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Min. 6 characters" {...field} />
+                      <Input type="password" placeholder="Min. 8 characters" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

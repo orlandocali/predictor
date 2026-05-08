@@ -7,11 +7,13 @@ import com.app.exception.ResourceNotFoundException;
 import com.app.model.User;
 import com.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +39,9 @@ public class UserAdminService {
         return UserResponse.from(savedUser);
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserResponse::from)
-                .toList();
+    public Page<UserResponse> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "username"));
+        return userRepository.findAll(pageable).map(UserResponse::from);
     }
 
     public UserResponse getUserById(String id) {
@@ -54,6 +54,7 @@ public class UserAdminService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
 
+        user.setUsername(request.getUsername());
         user.setDisplayName(request.getDisplayName());
         user.setRole(request.getRole());
 
@@ -65,11 +66,11 @@ public class UserAdminService {
         return UserResponse.from(updatedUser);
     }
 
-    public UserResponse toggleActive(String id) {
+    public UserResponse setActive(String id, boolean active) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
 
-        user.setActive(!user.isActive());
+        user.setActive(active);
 
         User updatedUser = userRepository.save(user);
         return UserResponse.from(updatedUser);

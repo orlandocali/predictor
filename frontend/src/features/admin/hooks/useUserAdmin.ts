@@ -17,7 +17,7 @@ export const ADMIN_USERS_KEY = ['admin', 'users'] as const;
 // ---------------------------------------------------------------------------
 export const createUserSchema = z.object({
   username: z.string().min(1, 'Username is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
   displayName: z.string().min(1, 'Display name is required'),
   role: z.enum(['USER', 'ADMIN']),
 });
@@ -28,7 +28,7 @@ export const updateUserSchema = z.object({
   role: z.enum(['USER', 'ADMIN']),
   password: z
     .string()
-    .min(6, 'Password must be at least 6 characters')
+    .min(8, 'Password must be at least 8 characters')
     .optional()
     .or(z.literal('')),
 });

@@ -36,15 +36,14 @@ public class PredictionService {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Match not found: " + matchId));
 
-        if (match.getStage() != MatchStage.GROUP_STAGE
-                && (request.getPredictedPenaltyWinner() == null || request.getPredictedPenaltyWinner().isBlank())) {
-            throw new IllegalArgumentException("Penalty winner is required for knockout stage matches");
-        }
-
         if (match.getStatus() == MatchStatus.LOCKED
                 || match.getStatus() == MatchStatus.FINISHED
                 || match.getStatus() == MatchStatus.SCORED) {
             throw new PredictionLockedException("Predictions are closed for this match");
+        }
+
+        if (match.getKickoffAt() == null) {
+            throw new IllegalArgumentException("Match has no scheduled kickoff time; predictions cannot be submitted");
         }
 
         Instant lockDeadline = match.getKickoffAt().minus(12, ChronoUnit.HOURS);
@@ -52,8 +51,16 @@ public class PredictionService {
             throw new PredictionLockedException("Prediction window has closed (12 hours before kickoff)");
         }
 
+        if (match.getStage() != MatchStage.GROUP_STAGE
+                && (request.getPredictedPenaltyWinner() == null || request.getPredictedPenaltyWinner().isBlank())) {
+            throw new IllegalArgumentException("Penalty winner is required for knockout stage matches");
+        }
+
         Prediction saved = predictionRepository.findByUserIdAndMatchId(userId, matchId)
                 .map(existing -> {
+                    if (existing.isLocked()) {
+                        throw new PredictionLockedException("This prediction is locked and cannot be modified");
+                    }
                     existing.setPredictedHomeScore(request.getPredictedHomeScore());
                     existing.setPredictedAwayScore(request.getPredictedAwayScore());
                     existing.setPredictedPenaltyWinner(request.getPredictedPenaltyWinner());
