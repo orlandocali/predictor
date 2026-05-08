@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Lock, CheckCircle2, CircleDot } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import TeamFlag from '@/components/TeamFlag';
 import type { MatchResponse, MatchStatus } from '@/types/match';
 
 interface MatchCardProps {
@@ -82,10 +83,11 @@ export function MatchCard({ match }: MatchCardProps) {
           {/* Home team */}
           <div className="flex-1 min-w-0">
             <span className={cn(
-              'block truncate font-semibold leading-tight text-sm sm:text-base',
+              'flex items-center gap-1.5 font-semibold leading-tight text-sm sm:text-base',
               hasResult && match.result!.homeScore > match.result!.awayScore && 'text-primary'
             )}>
-              {match.homeTeam}
+              <TeamFlag team={match.homeTeam} />
+              <span className="truncate">{match.homeTeam}</span>
             </span>
           </div>
 
@@ -109,10 +111,11 @@ export function MatchCard({ match }: MatchCardProps) {
           {/* Away team */}
           <div className="flex-1 min-w-0 text-right">
             <span className={cn(
-              'block truncate font-semibold leading-tight text-sm sm:text-base',
+              'flex items-center justify-end gap-1.5 font-semibold leading-tight text-sm sm:text-base',
               hasResult && match.result!.awayScore > match.result!.homeScore && 'text-primary'
             )}>
-              {match.awayTeam}
+              <span className="truncate">{match.awayTeam}</span>
+              <TeamFlag team={match.awayTeam} />
             </span>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { AlertCircle, ArrowLeft, Calendar, Loader2, Lock, Trophy, Users } from '
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import TeamFlag from '@/components/TeamFlag';
 import type { MatchStage } from '@/types/match';
 import { useMatch } from '../hooks/useMatch';
 import { MatchStatusBadge } from '../components/MatchStatusBadge';
@@ -82,7 +83,13 @@ export default function MatchDetailPage() {
 
       <Card>
         <CardHeader className="space-y-3">
-          <h1 className="text-2xl font-bold">{data.homeTeam} vs {data.awayTeam}</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2 flex-wrap">
+            <TeamFlag team={data.homeTeam} size="md" />
+            <span>{data.homeTeam}</span>
+            <span className="text-muted-foreground font-normal text-lg">vs</span>
+            <span>{data.awayTeam}</span>
+            <TeamFlag team={data.awayTeam} size="md" />
+          </h1>
           <MatchStatusBadge status={data.status} />
         </CardHeader>
 
@@ -121,10 +128,16 @@ export default function MatchDetailPage() {
             <CardTitle>Result</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-center gap-4">
-              <span className="text-4xl font-bold tabular-nums">{data.result.homeScore}</span>
-              <span className="text-2xl text-muted-foreground">-</span>
-              <span className="text-4xl font-bold tabular-nums">{data.result.awayScore}</span>
+            <div className="flex items-center justify-center gap-6">
+              <div className="flex flex-col items-center gap-2">
+                <TeamFlag team={data.homeTeam} size="md" />
+                <span className="text-4xl font-bold tabular-nums">{data.result.homeScore}</span>
+              </div>
+              <span className="text-2xl text-muted-foreground font-bold">-</span>
+              <div className="flex flex-col items-center gap-2">
+                <TeamFlag team={data.awayTeam} size="md" />
+                <span className="text-4xl font-bold tabular-nums">{data.result.awayScore}</span>
+              </div>
             </div>
             {data.result.penaltyWinner != null && (
               <p className="text-center text-sm text-muted-foreground mt-2">

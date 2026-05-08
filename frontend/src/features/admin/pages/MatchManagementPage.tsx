@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { PlusCircle, Loader2, Pencil, Trash2, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import TeamFlag from '@/components/TeamFlag';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -160,9 +161,9 @@ export default function MatchManagementPage() {
             <DialogDescription>
               {deletingMatch && (
                 <>
-                  <span className="font-medium">{deletingMatch.homeTeam}</span>
+                  <span className="font-medium inline-flex items-center gap-1"><TeamFlag team={deletingMatch.homeTeam} /> {deletingMatch.homeTeam}</span>
                   {' vs '}
-                  <span className="font-medium">{deletingMatch.awayTeam}</span>
+                  <span className="font-medium inline-flex items-center gap-1"><TeamFlag team={deletingMatch.awayTeam} /> {deletingMatch.awayTeam}</span>
                   {' will be permanently deleted. This cannot be undone.'}
                 </>
               )}
@@ -231,8 +232,18 @@ export default function MatchManagementPage() {
                 const statusCfg = STATUS_CONFIG[match.status];
                 return (
                   <TableRow key={match.id}>
-                    <TableCell className="font-medium">{match.homeTeam}</TableCell>
-                    <TableCell>{match.awayTeam}</TableCell>
+                    <TableCell className="font-medium">
+                      <span className="flex items-center gap-1.5">
+                        <TeamFlag team={match.homeTeam} />
+                        {match.homeTeam}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="flex items-center gap-1.5">
+                        <TeamFlag team={match.awayTeam} />
+                        {match.awayTeam}
+                      </span>
+                    </TableCell>
                     <TableCell>{STAGE_LABELS[match.stage] ?? match.stage}</TableCell>
                     <TableCell>{match.group ?? '—'}</TableCell>
                     <TableCell className="tabular-nums text-sm">

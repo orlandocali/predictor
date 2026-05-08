@@ -128,13 +128,15 @@ public class MatchSyncService {
         MatchStage stage = parseStage(remote.getRound(), remote.getGroup());
         MatchResult result = parseResult(remote);
 
+        String groupName = normalizeGroupName(remote.getGroup());
+
         if (existing.isPresent()) {
             Match match = existing.get();
             match.setHomeTeam(remote.getTeam1());
             match.setAwayTeam(remote.getTeam2());
             match.setKickoffAt(kickoffAt);
             match.setStage(stage);
-            match.setGroupName(remote.getGroup());
+            match.setGroupName(groupName);
             match.setVenue(remote.getGround());
             if (result != null) {
                 match.setResult(result);
@@ -152,7 +154,7 @@ public class MatchSyncService {
                     .awayTeam(remote.getTeam2())
                     .kickoffAt(kickoffAt)
                     .stage(stage)
-                    .groupName(remote.getGroup())
+                    .groupName(groupName)
                     .venue(remote.getGround())
                     .status(result != null ? MatchStatus.FINISHED : MatchStatus.SCHEDULED)
                     .result(result)
@@ -196,6 +198,12 @@ public class MatchSyncService {
         LocalDate localDate = LocalDate.parse(date);
         LocalTime localTime = LocalTime.parse(rawTime);
         return LocalDateTime.of(localDate, localTime).toInstant(offset);
+    }
+
+    // Strips "Group " prefix from remote group values (e.g. "Group A" → "A").
+    private String normalizeGroupName(String group) {
+        if (group == null || group.isBlank()) return null;
+        return group.replaceFirst("(?i)^group\\s+", "").trim();
     }
 
     private MatchStage parseStage(String round, String group) {
